@@ -17,9 +17,13 @@ class Cell
 
 	void set_color_possible(int color_number, bool possible);
 
+	int max_colors() const;
+
 private:
 	// Bitmask with possible colors. 0 - "impossible" cell, it mustn't appear in normal puzzless
 	// Least bit is background (i.e. if m_data == 0 then cell is background) all other bits are
 	// colors
 	uint32_t m_data;
+
+	int m_max_colors;
 };
