@@ -21,8 +21,8 @@ class Cell
 
 private:
 	// Bitmask with possible colors. 0 - "impossible" cell, it mustn't appear in normal puzzless
-	// Least bit is background (i.e. if m_data == 0 then cell is background) all other bits are
-	// colors
+	// Lowest bit is background (i.e. if m_data == 1 then cell must be background), all other bits
+	// are corresponding colors
 	uint32_t m_data;
 
 	int m_max_colors;
