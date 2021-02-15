@@ -27,7 +27,7 @@ Cell::Cell(int max_colors) : m_max_colors(max_colors)
 {
 	// TODO: replace it to actual exception
 	if (max_colors > MAX_COLORS) throw 42;
-	m_data = 1u >> (max_colors + 1) - 1u;
+	m_data = (1u << (max_colors + 1)) - 1u;
 }
 
 std::optional<int> Cell::get_color() const
@@ -39,7 +39,7 @@ std::optional<int> Cell::get_color() const
 
 bool Cell::is_color_possible(int color_number) const
 {
-	return m_data & (1u << color_number) != 0;
+	return (m_data & (1u << color_number)) != 0;
 }
 
 bool Cell::is_impossible() const

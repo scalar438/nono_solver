@@ -4,7 +4,8 @@
 std::vector<int> adjust(std::vector<Cell> &cells, std::vector<std::pair<int, int>> &block_list)
 {
 	const size_t n = cells.size();
-	if (n == 0) return {};
+	std::vector<int> res;
+	if (n == 0) return res;
 
 	const int max_colors = cells[0].max_colors();
 	const size_t k       = block_list.size();
@@ -51,4 +52,5 @@ std::vector<int> adjust(std::vector<Cell> &cells, std::vector<std::pair<int, int
 		for (int i = 0; i <= max_colors; ++i)
 		{}
 	}
+	return res;
 }
