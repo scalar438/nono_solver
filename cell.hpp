@@ -5,6 +5,7 @@ const int MAX_COLORS = 31;
 
 class Cell
 {
+public:
 	explicit Cell(int max_colors);
 
 	/// Return 0 (background color) or color number (number from 1 to MAX_COLORS) if cell state is
