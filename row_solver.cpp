@@ -1,4 +1,5 @@
 #include "row_solver.hpp"
+#include "reversed_vector.hpp"
 #include <string>
 
 template <class TCell, class TBlock, class TResult>
