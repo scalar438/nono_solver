@@ -20,9 +20,15 @@ public:
 		}
 	}
 
-	T &operator[](size_t index) { return *(m_data_ptr->rbegin() + index); }
+	typename std::vector<T>::reference operator[](size_t index)
+	{
+		return *(m_data_ptr->rbegin() + index);
+	}
 
-	const T &operator[](size_t index) const { return *(m_data_ptr->rbegin() + index); }
+	typename std::vector<T>::const_reference operator[](size_t index) const
+	{
+		return *(m_data_ptr->rbegin() + index);
+	}
 
 	size_t size() const { return m_data_ptr->size(); }
 
