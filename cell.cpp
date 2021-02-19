@@ -3,7 +3,7 @@
 namespace
 {
 
-// Calculate number of enabled bit.
+// Calculate position of enabled bit.
 constexpr int get_bit_number(uint32_t val)
 {
 	constexpr int MultiplyDeBruijnBitPosition[32] = {0,  1,  28, 2,  29, 14, 24, 3,  30, 22, 20,
