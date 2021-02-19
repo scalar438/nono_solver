@@ -53,10 +53,10 @@ std::vector<int> calculate_row(std::vector<Cell> &cells, std::vector<std::pair<i
 	calc_blocks_placeability(cells, blocks, can_place_prefix);
 	{
 		std::vector<ReversedVector<bool>> can_place_suffix_rev;
-		for (auto &vec : can_place_suffix)
-			can_place_suffix_rev.push_back(ReversedVector(vec));
 		calc_blocks_placeability(ReversedVector(cells), ReversedVector(blocks),
 		                         can_place_suffix_rev);
+		for (auto &rev_vector : can_place_suffix_rev)
+			can_place_suffix.emplace_back(rev_vector.move_out());
 	}
 
 	calc_blocks_placeability(ReversedVector(cells), ReversedVector(blocks), can_place_suffix);

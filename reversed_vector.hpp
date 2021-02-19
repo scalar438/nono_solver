@@ -34,6 +34,13 @@ public:
 
 	void resize(size_t new_size) { m_data_ptr->resize(new_size); }
 
+	std::vector<T> move_out()
+	{
+		auto old_ptr = m_data_ptr;
+		m_data_ptr   = &m_data;
+		return std::move(*old_ptr);
+	}
+
 private:
 	std::vector<T> m_data;
 
