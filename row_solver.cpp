@@ -38,7 +38,7 @@ void calc_blocks_placeability(const TCell &cells, const TBlock &blocks, std::vec
 	}
 }
 
-std::vector<int> adjust(std::vector<Cell> &cells, std::vector<std::pair<int, int>> &blocks)
+std::vector<int> calculate_row(std::vector<Cell> &cells, std::vector<std::pair<int, int>> &blocks)
 {
 	const size_t n = cells.size();
 	std::vector<int> res;
