@@ -1,6 +1,7 @@
 #include "row_solver.hpp"
 #include "reversed_vector.hpp"
 #include <string>
+#include <set>
 
 template <class TCell, class TBlock, class TResult>
 void calc_blocks_placeability(const TCell &cells, const TBlock &blocks, std::vector<TResult> &res)
@@ -38,11 +39,10 @@ void calc_blocks_placeability(const TCell &cells, const TBlock &blocks, std::vec
 	}
 }
 
-std::vector<int> calculate_row(std::vector<Cell> &cells, std::vector<std::pair<int, int>> &blocks)
+std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<std::pair<int, int>> &blocks)
 {
 	const size_t n = cells.size();
-	std::vector<int> res;
-	if (n == 0) return res;
+	if (n == 0) return {};
 
 	const int max_colors = cells[0].max_colors();
 
@@ -59,12 +59,30 @@ std::vector<int> calculate_row(std::vector<Cell> &cells, std::vector<std::pair<i
 			can_place_suffix.emplace_back(rev_vector.move_out());
 	}
 
-	calc_blocks_placeability(ReversedVector(cells), ReversedVector(blocks), can_place_suffix);
+	std::set<int> changed_indexes;
 
+	size_t k = blocks.size();
+	// Calculate empty cells
 	for (size_t i = 0; i != n; ++i)
 	{
-		for (int i = 0; i <= max_colors; ++i)
-		{}
+		if(cells[i].is_color_possible(i))
+		{
+			bool can_place = false;
+			for(int j = 0; j <= k; ++j)
+			{
+				if(can_place_prefix[j][i] && can_place_suffix[j][i + 1])
+				{
+					can_place = true;
+					break;
+				}
+			}
+			if(!can_place)
+			{
+				cells[i].set_color_possible(i, false);
+				changed_indexes.insert(i);
+			}
+		}
 	}
-	return res;
+
+	return std::vector<size_t>(changed_indexes.begin(), changed_indexes.end());
 }
