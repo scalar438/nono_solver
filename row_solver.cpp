@@ -1,7 +1,7 @@
 #include "row_solver.hpp"
 #include "reversed_vector.hpp"
-#include <string>
 #include <set>
+#include <string>
 
 template <class TCell, class TBlock, class TResult>
 void calc_blocks_placeability(const TCell &cells, const TBlock &blocks, std::vector<TResult> &res)
@@ -39,7 +39,8 @@ void calc_blocks_placeability(const TCell &cells, const TBlock &blocks, std::vec
 	}
 }
 
-std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<std::pair<int, int>> &blocks)
+std::vector<size_t> calculate_row(std::vector<Cell> &cells,
+                                  std::vector<std::pair<int, int>> &blocks)
 {
 	const size_t n = cells.size();
 	if (n == 0) return {};
@@ -59,30 +60,77 @@ std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<std::pai
 			can_place_suffix.emplace_back(rev_vector.move_out());
 	}
 
-	std::set<int> changed_indexes;
+	std::vector<bool> changed_indexes(n);
 
-	size_t k = blocks.size();
+	const size_t blocks_count = blocks.size();
 	// Calculate empty cells
 	for (size_t i = 0; i != n; ++i)
 	{
-		if(cells[i].is_color_possible(i))
+		if (cells[i].is_color_possible(i))
 		{
 			bool can_place = false;
-			for(int j = 0; j <= k; ++j)
+			for (size_t j = 0; j <= blocks_count; ++j)
 			{
-				if(can_place_prefix[j][i] && can_place_suffix[j][i + 1])
+				if (can_place_prefix[j][i] && can_place_suffix[j][i + 1])
 				{
 					can_place = true;
 					break;
 				}
 			}
-			if(!can_place)
+			if (!can_place)
 			{
 				cells[i].set_color_possible(i, false);
-				changed_indexes.insert(i);
+				changed_indexes[i] = true;
 			}
 		}
 	}
 
-	return std::vector<size_t>(changed_indexes.begin(), changed_indexes.end());
+	for (size_t ci = 1; ci <= max_colors; ++ci)
+	{
+		int in_the_row_count = 0;
+		std::vector<bool> can_placed(n, false);
+		for (size_t i = 0; i != n; ++i)
+		{
+			if (cells[i].is_color_possible(ci))
+			{
+				in_the_row_count += 1;
+			}
+			else
+			{
+				in_the_row_count = 0;
+			}
+			for (size_t k = 0; k != blocks_count; ++k)
+			{
+				if (blocks[k].second > in_the_row_count) continue;
+
+				int delta_prefix = k == 0 ? 0 : 1;
+				int delta_suffix = k == blocks_count - 1 ? 0 : 1;
+				if (can_place_prefix[k][i - blocks[k].second - delta_prefix] &&
+				    can_place_suffix[blocks_count - k][i + delta_suffix])
+				{
+					// Can be placed, color ci is possible in range [i - blocks[k]..i]
+					for (size_t j = i - blocks[k].second; j <= i; ++j)
+					{
+						can_placed[j] = true;
+					}
+				}
+			}
+		}
+		for (size_t i = 0; i != n; ++i)
+		{
+			if (cells[i].is_color_possible(ci) && !can_placed[i])
+			{
+				changed_indexes[i] = true;
+				cells[i].set_color_possible(ci, false);
+			}
+		}
+	}
+
+	std::vector<size_t> result;
+	for (size_t i = 0; i < n; ++i)
+	{
+		if (changed_indexes[i]) result.push_back(i);
+	}
+
+	return result;
 }
