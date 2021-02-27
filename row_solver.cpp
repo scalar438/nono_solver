@@ -27,14 +27,20 @@ void calc_blocks_placeability(const TCell &cells, const TBlock &blocks, std::vec
 
 		int current_allowed_count = 0;
 
+		int delta = i == 0 ? 1 : 0;
+
+		cur_value = false;
+
 		for (int j = 0; j < n; ++j)
 		{
 			if (cells[j].is_color_possible(blocks[i].first))
 				current_allowed_count += 1;
 			else
 				current_allowed_count = 0;
-			res[i + 1][j + 1] =
-			    current_allowed_count >= blocks[i].second && res[i][j - blocks[i].second];
+			if (!cur_value && j - blocks[i].second + delta >= 0 &&
+			    current_allowed_count >= blocks[i].second && res[i][j - blocks[i].second + delta])
+				cur_value = true;
+			res[i + 1][j + 1] = cur_value;
 		}
 	}
 }
@@ -66,7 +72,7 @@ std::vector<size_t> calculate_row(std::vector<Cell> &cells,
 	// Calculate empty cells
 	for (size_t i = 0; i != n; ++i)
 	{
-		if (cells[i].is_color_possible(i))
+		if (cells[i].is_color_possible(0))
 		{
 			bool can_place = false;
 			for (size_t j = 0; j <= blocks_count; ++j)
