@@ -32,20 +32,20 @@ void calc_blocks_placeability(const TCell &cells, const TBlock &blocks, std::vec
 
 		for (size_t j = 0; j < n; ++j)
 		{
-			if (cells[j].is_color_possible(blocks[i].first))
+			if (cells[j].is_color_possible(blocks[i].color_number))
 				current_allowed_count += 1;
 			else
 				current_allowed_count = 0;
-			if (!cur_value && j - blocks[i].second + delta <= n &&
-			    current_allowed_count >= blocks[i].second && res[i][j - blocks[i].second + delta])
+			if (!cur_value && j - blocks[i].block_length + delta <= n &&
+			    current_allowed_count >= blocks[i].block_length &&
+			    res[i][j - blocks[i].block_length + delta])
 				cur_value = true;
 			res[i + 1][j + 1] = cur_value;
 		}
 	}
 }
 
-std::vector<size_t> calculate_row(std::vector<Cell> &cells,
-                                  std::vector<std::pair<int, size_t>> &blocks)
+std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<Block> &blocks)
 {
 	const size_t n = cells.size();
 	if (n == 0) return {};
@@ -96,10 +96,10 @@ std::vector<size_t> calculate_row(std::vector<Cell> &cells,
 
 		for (size_t k = 0; k != blocks_count; ++k)
 		{
-			int in_the_row_count = 0;
+			size_t in_the_row_count = 0;
 			for (size_t i = 0; i != n; ++i)
 			{
-				if (cells[i].is_color_possible(blocks[k].first))
+				if (cells[i].is_color_possible(blocks[k].color_number))
 				{
 					in_the_row_count += 1;
 				}
@@ -107,10 +107,10 @@ std::vector<size_t> calculate_row(std::vector<Cell> &cells,
 				{
 					in_the_row_count = 0;
 				}
-				if (in_the_row_count < blocks[k].second) continue;
+				if (in_the_row_count < blocks[k].block_length) continue;
 
-				if (k != 0 && i - blocks[k].second <= n &&
-				    !cells[i - blocks[k].second].is_color_possible(0))
+				if (k != 0 && i - blocks[k].block_length <= n &&
+				    !cells[i - blocks[k].block_length].is_color_possible(0))
 					continue;
 				if (k != blocks_count - 1 && i + 1 != n && !cells[i + 1].is_color_possible(0))
 					continue;
@@ -118,17 +118,17 @@ std::vector<size_t> calculate_row(std::vector<Cell> &cells,
 				size_t delta_prefix = k == 0 ? 0 : 1;
 				size_t delta_suffix = k == blocks_count - 1 ? 0 : 1;
 
-				if (int(i) + 1 - blocks[k].second - delta_prefix <= n &&
-				    can_place_prefix[k][i + 1 - blocks[k].second - delta_prefix] &&
+				if (int(i) + 1 - blocks[k].block_length - delta_prefix <= n &&
+				    can_place_prefix[k][i + 1 - blocks[k].block_length - delta_prefix] &&
 				    i + delta_suffix + 1 <= n &&
 				    can_place_suffix[blocks_count - k - 1][i + delta_suffix + 1])
 				{
-					for (size_t j = i - blocks[k].second + 1; j <= i; ++j)
+					for (size_t j = i - blocks[k].block_length + 1; j <= i; ++j)
 					{
-						new_cell_list[j].set_color_possible(blocks[k].first, true);
+						new_cell_list[j].set_color_possible(blocks[k].color_number, true);
 					}
-					if (i - blocks[k].second < n)
-						new_cell_list[i - blocks[k].second].set_color_possible(0, true);
+					if (i - blocks[k].block_length < n)
+						new_cell_list[i - blocks[k].block_length].set_color_possible(0, true);
 					if (i + 1 < n) new_cell_list[i + 1].set_color_possible(0, true);
 				}
 			}

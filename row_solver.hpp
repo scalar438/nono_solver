@@ -1,4 +1,5 @@
 #pragma once
+#include "block.hpp"
 #include "cell.hpp"
 #include <vector>
 
@@ -6,4 +7,4 @@
 /// @param cells      - row, vector of cells with current state
 /// @param block_list - vector of pair (color number, block length)
 /// @return  number of cells with changed state
-std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<std::pair<int, size_t>> &blocks);
+std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<Block> &blocks);
