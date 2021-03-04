@@ -139,7 +139,6 @@ std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<Block> &
 			if (cells[i] != new_cell_list[i]) all_equal = false;
 			cells[i] &= new_cell_list[i];
 		}
-		new_cell_list.swap(cells);
 		if (all_equal) break;
 	}
 
