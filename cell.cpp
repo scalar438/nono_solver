@@ -23,11 +23,9 @@ constexpr bool test_get_bit_number()
 
 } // namespace
 
-Cell::Cell(int max_colors) : m_max_colors(max_colors)
+Cell::Cell()
 {
-	// TODO: replace it to actual exception
-	if (max_colors > MAX_COLORS) throw 42;
-	m_data = (1u << (max_colors + 1)) - 1u;
+	m_data = std::numeric_limits<uint32_t>::max();
 }
 
 std::optional<int> Cell::get_color() const
@@ -47,6 +45,11 @@ bool Cell::is_impossible() const
 	return m_data == 0;
 }
 
+void Cell::set_impossible()
+{
+	m_data = 0;
+}
+
 void Cell::set_color_possible(int color_number, bool possible)
 {
 	if (possible)
@@ -55,7 +58,12 @@ void Cell::set_color_possible(int color_number, bool possible)
 		m_data &= ~(1u << color_number);
 }
 
-int Cell::max_colors() const
+bool Cell::operator!=(const Cell &a) const
 {
-	return m_max_colors;
+	return this->m_data != a.m_data;
+}
+
+void Cell::operator&=(const Cell &a)
+{
+	m_data &= a.m_data;
 }
