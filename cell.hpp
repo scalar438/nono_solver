@@ -22,6 +22,8 @@ public:
 
 	bool operator!=(const Cell &a) const;
 
+	bool operator==(const Cell &a) const;
+
 	void operator&=(const Cell &a);
 
 private:

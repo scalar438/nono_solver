@@ -63,6 +63,11 @@ bool Cell::operator!=(const Cell &a) const
 	return this->m_data != a.m_data;
 }
 
+bool Cell::operator==(const Cell &a) const
+{
+	return this->m_data == a.m_data;
+}
+
 void Cell::operator&=(const Cell &a)
 {
 	m_data &= a.m_data;
