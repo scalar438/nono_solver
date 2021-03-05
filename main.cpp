@@ -79,7 +79,7 @@ vector<vector<Block>> gen_all_blocks(int n)
 		for (auto &vec : vecs)
 		{
 			vector<Block> blocks;
-			for(auto val : vec)
+			for (auto val : vec)
 				blocks.emplace_back(Block(1, val));
 			res.emplace_back(std::move(blocks));
 		}
@@ -92,18 +92,19 @@ vector<string> gen_all_rows(int n)
 	const char arr[3] = {'.', 'X', '?'};
 	vector<int> vs(n);
 	vector<string> res;
-	while(1)
+	while (1)
 	{
 		string str;
-		for(int v : vs) str.push_back(arr[v]);
+		for (int v : vs)
+			str.push_back(arr[v]);
 		res.emplace_back(std::move(str));
 		int i = 0;
-		while(i != n && vs[i] == 2)
+		while (i != n && vs[i] == 2)
 		{
 			vs[i] = 0;
 			++i;
 		}
-		if(i == n) break;
+		if (i == n) break;
 		++vs[i];
 	}
 	return res;
@@ -111,8 +112,8 @@ vector<string> gen_all_rows(int n)
 
 int main()
 {
-	const int n = 7;
+	const int n     = 7;
 	auto all_blocks = gen_all_blocks(n);
-	auto all_rows = gen_all_rows(n);
+	auto all_rows   = gen_all_rows(n);
 	std::cout << all_blocks.size() * all_rows.size();
 }
