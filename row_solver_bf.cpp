@@ -19,7 +19,7 @@ void f(const std::vector<Cell> &cells, const std::vector<Block> &blocks, size_t 
 		}
 		for (size_t i = 1; i != current_block_index; ++i)
 		{
-			for (size_t j = blocks_pos[i - 1] + blocks[i].block_length; j != blocks_pos[i]; ++j)
+			for (size_t j = blocks_pos[i - 1] + blocks[i - 1].block_length; j != blocks_pos[i]; ++j)
 			{
 				if (!cells[j].is_color_possible(0))
 				{
@@ -58,7 +58,7 @@ void f(const std::vector<Cell> &cells, const std::vector<Block> &blocks, size_t 
 	}
 
 	size_t in_the_row_count = 0;
-	while (current_cell_index != cells.size())
+	while (current_cell_index < cells.size())
 	{
 		if (cells[current_cell_index].is_color_possible(blocks[current_block_index].color_number))
 		{
@@ -72,7 +72,7 @@ void f(const std::vector<Cell> &cells, const std::vector<Block> &blocks, size_t 
 		{
 			// We can place the block. Save position and move farther
 			blocks_pos[current_block_index] =
-			    current_cell_index - blocks[current_block_index].block_length;
+			    current_cell_index - blocks[current_block_index].block_length + 1;
 			f(cells, blocks, current_cell_index + 1, current_block_index + 1, blocks_pos,
 			  result_cells);
 		}
