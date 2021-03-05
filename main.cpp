@@ -2,7 +2,11 @@
 #include "row_solver.hpp"
 #include "row_solver_bf.hpp"
 #include <iostream>
+#include <memory>
+#include <mutex>
+#include <optional>
 #include <string_view>
+#include <thread>
 #include <vector>
 
 using namespace std;
@@ -42,16 +46,14 @@ string from_vec_cell(const vector<Cell> &vc)
 	return res;
 }
 
-// strategy == 0 - bruteforce
-// strategy == 1 - actual solution
-bool solve(string str, vector<Block> &blocks)
+pair<string, string> solve(string str, vector<Block> &blocks)
 {
 	auto cells_exp = parse_string(str);
 	auto cells_sol = cells_exp;
 
 	calculate_row_bf(cells_exp, blocks);
 	calculate_row(cells_sol, blocks);
-	return cells_exp == cells_sol;
+	return make_pair(from_vec_cell(cells_exp), from_vec_cell(cells_sol));
 }
 
 // Generate all vectors with sum <= n
@@ -110,10 +112,59 @@ vector<string> gen_all_rows(int n)
 	return res;
 }
 
+void run_in_one_thread(std::shared_ptr<std::mutex> mtx,
+                       vector<pair<vector<Block> *, string *>> &data,
+                       optional<tuple<string, string, string>> &answer_mismatch)
+{
+	while (1)
+	{
+		pair<vector<Block> *, string *> one_run_data;
+		{
+			std::lock_guard g(*mtx);
+			if (data.empty()) break;
+			one_run_data = data.back();
+			data.pop_back();
+		}
+		auto res = solve(*one_run_data.second, *one_run_data.first);
+		if (res.first != res.second)
+		{
+			std::lock_guard g(*mtx);
+			data.clear();
+			answer_mismatch = make_tuple(*one_run_data.second, res.first, res.second);
+		}
+	}
+}
+
 int main()
 {
 	const int n     = 7;
 	auto all_blocks = gen_all_blocks(n);
 	auto all_rows   = gen_all_rows(n);
-	std::cout << all_blocks.size() * all_rows.size();
+	vector<pair<vector<Block> *, string *>> all_input;
+	for (auto &block : all_blocks)
+	{
+		for (auto &row : all_rows)
+		{
+			all_input.emplace_back(make_pair(&block, &row));
+		}
+	}
+	vector<thread> v_thrd;
+	auto mtx = std::make_shared<std::mutex>();
+	optional<tuple<string, string, string>> answer_mismatch;
+	for (unsigned int i = 0; i != std::thread::hardware_concurrency(); ++i)
+		v_thrd.emplace_back(
+		    thread(run_in_one_thread, mtx, std::ref(all_input), std::ref(answer_mismatch)));
+
+	for (auto &thrd : v_thrd)
+		thrd.join();
+	if (answer_mismatch)
+	{
+		cout << "Answer mismatch. Input: " << get<0>(*answer_mismatch) << ", right answer is "
+		     << get<1>(*answer_mismatch) << ", actual answer is " << get<2>(*answer_mismatch);
+	}
+	else
+	{
+		cout << "Ok";
+	}
+	cout << '\n';
 }
