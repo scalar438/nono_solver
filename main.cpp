@@ -1,10 +1,12 @@
 #include "row_solver_bf.hpp"
 #include <cell.hpp>
+#include <row_solver.hpp>
+
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <optional>
-#include <row_solver.hpp>
 #include <string_view>
 #include <thread>
 #include <vector>
@@ -112,15 +114,14 @@ vector<string> gen_all_rows(int n)
 	return res;
 }
 
-void run_in_one_thread(std::shared_ptr<std::mutex> mtx,
-                       vector<pair<vector<Block> *, string *>> &data,
+void run_in_one_thread(std::mutex &mtx, vector<pair<vector<Block> *, string *>> &data,
                        optional<tuple<string, string, string>> &answer_mismatch)
 {
 	while (1)
 	{
 		pair<vector<Block> *, string *> one_run_data;
 		{
-			std::lock_guard g(*mtx);
+			std::lock_guard g(mtx);
 			if (data.empty()) break;
 			one_run_data = data.back();
 			data.pop_back();
@@ -128,16 +129,28 @@ void run_in_one_thread(std::shared_ptr<std::mutex> mtx,
 		auto res = solve(*one_run_data.second, *one_run_data.first);
 		if (res.first != res.second)
 		{
-			std::lock_guard g(*mtx);
+			std::lock_guard g(mtx);
 			data.clear();
 			answer_mismatch = make_tuple(*one_run_data.second, res.first, res.second);
 		}
 	}
 }
 
+void items_counter(std::mutex &mtx, vector<pair<vector<Block> *, string *>> &input_data)
+{
+	while (1)
+	{
+		this_thread::sleep_for(std::chrono::seconds(1));
+		lock_guard g(mtx);
+		auto s = input_data.size();
+		if (s == 0) break;
+		cout << "Items remaining: " << s << '\n';
+	}
+}
+
 int main()
 {
-	const int n     = 3;
+	const int n     = 7;
 	auto all_blocks = gen_all_blocks(n);
 	auto all_rows   = gen_all_rows(n);
 	vector<pair<vector<Block> *, string *>> all_input;
@@ -149,12 +162,12 @@ int main()
 		}
 	}
 	vector<thread> v_thrd;
-	auto mtx = std::make_shared<std::mutex>();
+	std::mutex mtx;
 	optional<tuple<string, string, string>> answer_mismatch;
 	for (unsigned int i = 0; i != std::thread::hardware_concurrency(); ++i)
-		v_thrd.emplace_back(
-		    thread(run_in_one_thread, mtx, std::ref(all_input), std::ref(answer_mismatch)));
-
+		v_thrd.emplace_back(thread(run_in_one_thread, std::ref(mtx), std::ref(all_input),
+		                           std::ref(answer_mismatch)));
+	v_thrd.push_back(thread(items_counter, ref(mtx), ref(all_input)));
 	for (auto &thrd : v_thrd)
 		thrd.join();
 	if (answer_mismatch)
