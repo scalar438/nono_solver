@@ -13,6 +13,15 @@
 
 using namespace std;
 
+struct OneRunData
+{
+	string row;
+	vector<Block> blocks;
+
+	string ans_exp;
+	string ans_actual;
+};
+
 vector<Cell> parse_string(string_view str)
 {
 	vector<Cell> res;
@@ -115,7 +124,7 @@ vector<string> gen_all_rows(int n)
 }
 
 void run_in_one_thread(std::mutex &mtx, vector<pair<vector<Block> *, string *>> &data,
-                       optional<tuple<string, string, string>> &answer_mismatch)
+                       optional<OneRunData> &answer_mismatch)
 {
 	while (1)
 	{
@@ -131,7 +140,12 @@ void run_in_one_thread(std::mutex &mtx, vector<pair<vector<Block> *, string *>> 
 		{
 			std::lock_guard g(mtx);
 			data.clear();
-			answer_mismatch = make_tuple(*one_run_data.second, res.first, res.second);
+			OneRunData data;
+			data.ans_exp    = move(res.first);
+			data.ans_actual = move(res.second);
+			data.blocks     = *one_run_data.first;
+			data.row        = *one_run_data.second;
+			answer_mismatch = move(data);
 		}
 	}
 }
@@ -150,7 +164,7 @@ void items_counter(std::mutex &mtx, vector<pair<vector<Block> *, string *>> &inp
 
 int main()
 {
-	const int n     = 7;
+	const int n     = 5;
 	auto all_blocks = gen_all_blocks(n);
 	auto all_rows   = gen_all_rows(n);
 	vector<pair<vector<Block> *, string *>> all_input;
@@ -163,7 +177,7 @@ int main()
 	}
 	vector<thread> v_thrd;
 	std::mutex mtx;
-	optional<tuple<string, string, string>> answer_mismatch;
+	optional<OneRunData> answer_mismatch;
 	for (unsigned int i = 0; i != std::thread::hardware_concurrency(); ++i)
 		v_thrd.emplace_back(thread(run_in_one_thread, std::ref(mtx), std::ref(all_input),
 		                           std::ref(answer_mismatch)));
@@ -172,8 +186,11 @@ int main()
 		thrd.join();
 	if (answer_mismatch)
 	{
-		cout << "Answer mismatch. Input: " << get<0>(*answer_mismatch) << ", right answer is "
-		     << get<1>(*answer_mismatch) << ", actual answer is " << get<2>(*answer_mismatch);
+		cout << "Answer mismatch!\nInput: " << answer_mismatch->row << "\nBlocks: ";
+		for (auto &block : answer_mismatch->blocks)
+			cout << block.block_length;
+		cout << "\nRight answer is: " << answer_mismatch->ans_exp
+		     << ", actual answer is: " << answer_mismatch->ans_actual;
 	}
 	else
 	{
