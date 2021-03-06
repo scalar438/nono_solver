@@ -1,0 +1,1 @@
+Solution of problem https://acm.timus.ru/problem.aspx?space=1&num=1508 for solver checking
