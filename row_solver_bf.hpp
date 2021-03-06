@@ -1,6 +1,6 @@
 #pragma once
-#include "block.hpp"
-#include "cell.hpp"
+#include <block.hpp>
+#include <cell.hpp>
 #include <vector>
 
 /// Calculate puzzle for one row by bruteforce

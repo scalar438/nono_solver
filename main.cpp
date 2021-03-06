@@ -1,10 +1,10 @@
-#include "cell.hpp"
-#include "row_solver.hpp"
 #include "row_solver_bf.hpp"
+#include <cell.hpp>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <row_solver.hpp>
 #include <string_view>
 #include <thread>
 #include <vector>
@@ -137,7 +137,7 @@ void run_in_one_thread(std::shared_ptr<std::mutex> mtx,
 
 int main()
 {
-	const int n     = 7;
+	const int n     = 3;
 	auto all_blocks = gen_all_blocks(n);
 	auto all_rows   = gen_all_rows(n);
 	vector<pair<vector<Block> *, string *>> all_input;
