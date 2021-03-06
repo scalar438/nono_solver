@@ -1,12 +1,61 @@
 #pragma once
+#include <type_traits>
 #include <vector>
 
-template <class T> class ReversedVector
+namespace impl
+{
+template <class T> class ReversedVectorConst
 {
 public:
-	explicit ReversedVector(std::vector<T> &data) : m_data_ptr(&data) {}
+	ReversedVectorConst(const std::vector<T> &data) : : m_data_ptr_const(&data) {}
+	ReversedVectorConst() {}
 
-	ReversedVector() { m_data_ptr = &m_data; }
+	typename std::vector<T>::const_reference operator[](size_t index) const
+	{
+		return *(m_data_ptr_const->rbegin() + index);
+	}
+
+	size_t size() const { return m_data_ptr_const->size(); }
+
+protected:
+	const std::vector<T> *m_data_ptr_const;
+};
+
+template <class T> class ReversedVector : public ReversedVectorConst<T>
+{
+public:
+	ReversedVector(std::vector<T> &data) : m_data_ptr(&data) {}
+	ReversedVector() {}
+
+	typename std::vector<T>::reference operator[](size_t index)
+	{
+		return *(m_data_ptr->rbegin() + index);
+	}
+
+	using ReversedVectorConst::operator[];
+
+	void resize(size_t new_size) { m_data_ptr->resize(new_size); }
+
+	void set_data_ptr(std::vector<T> *data_ptr)
+	{
+		m_data_ptr       = data_ptr;
+		m_data_ptr_const = data_ptr;
+	}
+
+protected:
+	std::vector<T> *m_data_ptr;
+};
+
+} // namespace impl
+
+template <class T>
+class ReversedVector : public std::conditional_t<std::is_const_v<T>, impl::ReversedVectorConst<T>,
+                                                 impl::ReversedVector<T>>
+{
+public:
+	explicit ReversedVector(std::vector<T> &data) { set_data_ptr(&data); }
+
+	ReversedVector() { set_data_ptr(&m_data); }
 
 	ReversedVector(ReversedVector<T> &&old) noexcept : m_data(std::move(old.m_data))
 	{
@@ -20,29 +69,13 @@ public:
 		}
 	}
 
-	typename std::vector<T>::reference operator[](size_t index)
-	{
-		return *(m_data_ptr->rbegin() + index);
-	}
-
-	typename std::vector<T>::const_reference operator[](size_t index) const
-	{
-		return *(m_data_ptr->rbegin() + index);
-	}
-
-	size_t size() const { return m_data_ptr->size(); }
-
-	void resize(size_t new_size) { m_data_ptr->resize(new_size); }
-
 	std::vector<T> move_out()
 	{
 		auto old_ptr = m_data_ptr;
-		m_data_ptr   = &m_data;
+		set_data_ptr(&m_data);
 		return std::move(*old_ptr);
 	}
 
 private:
 	std::vector<T> m_data;
-
-	std::vector<T> *m_data_ptr;
 };
