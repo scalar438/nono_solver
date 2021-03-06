@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(NonogramSolver)
 
-add_library(one_row_solver row_solver/row_solver.cpp row_solver/cell.cpp)
+add_library(one_row_solver row_solver/impl/row_solver.cpp row_solver/impl/cell.cpp)
 target_include_directories(one_row_solver PUBLIC "./row_solver")
 
 add_executable(testing main.cpp row_solver_bf.cpp)
