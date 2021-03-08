@@ -1,7 +1,104 @@
 #include "row_solver.hpp"
 #include "reversed_vector.hpp"
+#include <algorithm>
 #include <set>
 #include <string>
+
+class PlaceabilityCalculator
+{
+public:
+	PlaceabilityCalculator(const std::vector<Cell> &cells, const std::vector<Block> &blocks)
+	{
+		m_first_not_empty =
+		    std::find_if(cells.cbegin(), cells.cend(),
+		                 [](const Cell &cell) { return !cell.is_color_possible(0); }) -
+		    cells.cbegin();
+
+		m_last_not_empty =
+		    std::find_if(cells.crbegin(), cells.crend(),
+		                 [](const Cell &cell) { return !cell.is_color_possible(0); }) -
+		    cells.crbegin();
+
+		m_prefix_positions =
+		    fill_positions(cells.begin(), cells.end(), blocks.begin(), blocks.end());
+
+		m_suffix_positions =
+		    fill_positions(cells.begin(), cells.end(), blocks.begin(), blocks.end());
+		std::reverse(m_suffix_positions.begin(), m_suffix_positions.end());
+	}
+
+	bool can_place_prefix(size_t cell_index, size_t block_index) const
+	{
+		if (block_index == 0)
+		{
+			return cell_index <= m_first_not_empty;
+		}
+		else
+		{
+			return m_prefix_positions[block_index] <= cell_index;
+		}
+	}
+
+	bool can_place_suffix(size_t cell_index, size_t block_index) const
+	{
+		if (block_index == 0)
+		{
+			return cell_index <= m_last_not_empty;
+		}
+		else
+		{
+			return m_suffix_positions[block_index] <= cell_index;
+		}
+	}
+
+private:
+	size_t m_first_not_empty;
+	size_t m_last_not_empty;
+
+	std::vector<size_t> m_prefix_positions;
+
+	std::vector<size_t> m_suffix_positions;
+
+	template <class ItCB, class ItCE, class ItBB, class ItBE>
+	static std::vector<size_t> fill_positions(ItCB cell_it, ItCE cell_it_end, ItBB block_it,
+	                                          ItBE block_it_end)
+	{
+		std::vector<size_t> res;
+		res.reserve(block_it_end - block_it);
+
+		size_t current_cell_index = 0;
+
+		size_t in_the_row_count = 0;
+		while (cell_it != cell_it_end && block_it != block_it_end)
+		{
+			if (cell_it->is_color_possible(block_it->color_number))
+			{
+				++in_the_row_count;
+			}
+			else
+			{
+				in_the_row_count = 0;
+			}
+			if (in_the_row_count == block_it->block_length)
+			{
+				res.push_back(current_cell_index - block_it->block_length + 1u);
+				in_the_row_count = 0;
+				++block_it;
+				in_the_row_count = 0;
+				current_cell_index += 2;
+
+				++cell_it;
+				if (cell_it != cell_it_end) ++cell_it;
+			}
+			else
+			{
+				++cell_it;
+				++current_cell_index;
+			}
+		}
+		return res;
+	}
+};
 
 template <class TCell, class TBlock, class TResult>
 void calc_blocks_placeability(const TCell &cells, const TBlock &blocks, std::vector<TResult> &res)
