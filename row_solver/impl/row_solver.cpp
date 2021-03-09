@@ -22,8 +22,7 @@ public:
 		    fill_positions(cells.begin(), cells.end(), blocks.begin(), blocks.end());
 
 		m_suffix_positions =
-		    fill_positions(cells.begin(), cells.end(), blocks.begin(), blocks.end());
-		std::reverse(m_suffix_positions.begin(), m_suffix_positions.end());
+		    fill_positions(cells.crbegin(), cells.rend(), blocks.rbegin(), blocks.rend());
 	}
 
 	// return true if we can place first block_index blocks on first cell_index cells
@@ -35,11 +34,11 @@ public:
 		}
 		else
 		{
-			return m_prefix_positions[block_index] <= cell_index;
+			return m_prefix_positions[block_index - 1] <= cell_index;
 		}
 	}
 
-	// return true if we can place last block_index blocks on last n - cell_index cells
+	// return true if we can place last block_index blocks on cell_index cells
 	bool can_place_suffix(size_t cell_index, size_t block_index) const
 	{
 		if (block_index == 0)
@@ -48,7 +47,7 @@ public:
 		}
 		else
 		{
-			return m_suffix_positions[block_index] <= cell_index;
+			return m_suffix_positions[block_index - 1] <= cell_index;
 		}
 	}
 
@@ -82,7 +81,7 @@ private:
 			}
 			if (in_the_row_count == block_it->block_length)
 			{
-				res.push_back(current_cell_index - block_it->block_length + 1u);
+				res.push_back(current_cell_index + 1);
 				in_the_row_count = 0;
 				++block_it;
 				in_the_row_count = 0;
@@ -126,7 +125,8 @@ std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<Block> &
 				bool can_place = false;
 				for (size_t j = 0; j <= blocks_count; ++j)
 				{
-					if (pc.can_place_prefix(i, j) && pc.can_place_suffix(i + 1, blocks_count - j))
+					if (pc.can_place_prefix(i, j) &&
+					    pc.can_place_suffix(n - i - 1, blocks_count - j))
 					{
 						can_place = true;
 						break;
@@ -163,10 +163,8 @@ std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<Block> &
 				size_t delta_prefix = k == 0 ? 0 : 1;
 				size_t delta_suffix = k == blocks_count - 1 ? 0 : 1;
 
-				if (int(i) + 1 - blocks[k].block_length - delta_prefix <= n &&
-				    pc.can_place_prefix(i + 1 - blocks[k].block_length - delta_prefix, k) &&
-				    i + delta_suffix + 1 <= n &&
-				    pc.can_place_suffix(i + delta_suffix + 1, blocks_count - k - 1))
+				if (pc.can_place_prefix(i + 1 - blocks[k].block_length - delta_prefix, k) &&
+				    pc.can_place_suffix(n - (i + delta_suffix), blocks_count - k - 1))
 				{
 					for (size_t j = i - blocks[k].block_length + 1; j <= i; ++j)
 					{
