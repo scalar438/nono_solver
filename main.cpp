@@ -11,6 +11,8 @@
 #include <thread>
 #include <vector>
 
+#include "timus_task/main.cpp"
+
 using namespace std;
 
 struct OneRunData
@@ -62,9 +64,15 @@ pair<string, string> solve(string str, vector<Block> &blocks)
 	auto cells_exp = parse_string(str);
 	auto cells_sol = cells_exp;
 
+	std::vector<int> blocks_timus;
+	for (auto b : blocks)
+	{
+		blocks_timus.push_back(b.block_length);
+	}
+
 	calculate_row_bf(cells_exp, blocks);
-	calculate_row(cells_sol, blocks);
-	return make_pair(from_vec_cell(cells_exp), from_vec_cell(cells_sol));
+	//calculate_row(cells_sol, blocks);
+	return make_pair(from_vec_cell(cells_exp), timus_sol::calc(str, blocks_timus));
 }
 
 // Generate all vectors with sum <= n

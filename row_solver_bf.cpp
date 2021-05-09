@@ -17,7 +17,7 @@ void f(const std::vector<Cell> &cells, const std::vector<Block> &blocks, size_t 
 			}
 			empty_cells.push_back(i);
 		}
-		for (size_t i = 1; i != current_block_index; ++i)
+		for (size_t i = 1; i < current_block_index; ++i)
 		{
 			for (size_t j = blocks_pos[i - 1] + blocks[i - 1].block_length; j != blocks_pos[i]; ++j)
 			{

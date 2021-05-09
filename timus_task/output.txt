@@ -1,1 +1,2 @@
-Impossible
+3
+..XXX
