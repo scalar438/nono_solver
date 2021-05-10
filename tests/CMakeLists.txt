@@ -1,0 +1,19 @@
+add_library(row_solver_bf row_solver_bf.cpp)
+target_include_directories(row_solver_bf INTERFACE .)
+target_link_libraries(row_solver_bf PRIVATE one_row_solver)
+set_property(TARGET row_solver_bf PROPERTY CXX_STANDARD 17)
+
+add_executable(timus_sol timus/solution/main.cpp)
+target_compile_definitions(timus_sol PRIVATE MY_LOCAL_ONLINE_JUDGE)
+set_property(TARGET timus_sol PROPERTY CXX_STANDARD 17)
+
+add_executable(test_timus timus/testing/main.cpp)
+target_include_directories(test_timus PRIVATE timus)
+target_link_libraries(test_timus PRIVATE one_row_solver)
+target_link_libraries(test_timus PRIVATE row_solver_bf)
+target_compile_definitions(test_timus PRIVATE TESTING_ONLY)
+set_property(TARGET test_timus PROPERTY CXX_STANDARD 17)
+
+add_executable(row_solver_testing row_solver_testing.cpp)
+target_link_libraries(row_solver_testing PRIVATE row_solver_bf)
+target_link_libraries(row_solver_testing PRIVATE one_row_solver)

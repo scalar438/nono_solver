@@ -81,7 +81,7 @@ void f(const std::vector<Cell> &cells, const std::vector<Block> &blocks, size_t 
 }
 } // namespace
 
-std::vector<size_t> calculate_row_bf(std::vector<Cell> &cells, std::vector<Block> &blocks)
+std::vector<size_t> calculate_row_bf(std::vector<Cell> &cells, const std::vector<Block> &blocks)
 {
 	std::vector<size_t> blocks_pos(blocks.size());
 	std::vector<Cell> result_cells;
@@ -94,5 +94,7 @@ std::vector<size_t> calculate_row_bf(std::vector<Cell> &cells, std::vector<Block
 	cells.swap(result_cells);
 
 	std::vector<size_t> result;
+	for (size_t i = 0, e = cells.size(); i != e; ++i)
+		if (cells[i] != result_cells[i]) result.push_back(i);
 	return result;
 }

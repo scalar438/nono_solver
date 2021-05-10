@@ -1,7 +1,7 @@
 #ifdef MY_LOCAL_ONLINE_JUDGE
 #include <fstream>
-std::ifstream cin("../../../timus_task/input.txt");
-std::ofstream cout("../../../timus_task/output.txt");
+std::ifstream cin("input.txt");
+std::ofstream cout("output.txt");
 #else
 #include <iostream>
 #endif

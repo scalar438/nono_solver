@@ -11,7 +11,7 @@
 #include <thread>
 #include <vector>
 
-#include "timus_task/main.cpp"
+#include "solution/main.cpp"
 
 using namespace std;
 
@@ -67,11 +67,11 @@ pair<string, string> solve(string str, vector<Block> &blocks)
 	std::vector<int> blocks_timus;
 	for (auto b : blocks)
 	{
-		blocks_timus.push_back(b.block_length);
+		blocks_timus.push_back(int(b.block_length));
 	}
 
 	calculate_row_bf(cells_exp, blocks);
-	//calculate_row(cells_sol, blocks);
+	// calculate_row(cells_sol, blocks);
 	return make_pair(from_vec_cell(cells_exp), timus_sol::calc(str, blocks_timus));
 }
 
@@ -172,7 +172,7 @@ void items_counter(std::mutex &mtx, vector<pair<vector<Block> *, string *>> &inp
 
 int main()
 {
-	const int n     = 5;
+	const int n     = 10;
 	auto all_blocks = gen_all_blocks(n);
 	auto all_rows   = gen_all_rows(n);
 	vector<pair<vector<Block> *, string *>> all_input;
