@@ -52,7 +52,8 @@ void f(const std::vector<Cell> &cells, const std::vector<Block> &blocks, size_t 
 		return;
 	}
 	// If current block is not first, we have to add one empty cell
-	if (current_block_index != 0)
+	if (current_block_index != 0 &&
+	    blocks[current_block_index - 1].color_number == blocks[current_block_index].color_number)
 	{
 		++current_cell_index;
 	}
