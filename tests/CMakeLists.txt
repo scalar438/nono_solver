@@ -11,6 +11,7 @@ add_executable(test_timus timus/testing/main.cpp)
 target_include_directories(test_timus PRIVATE timus)
 target_link_libraries(test_timus PRIVATE one_row_solver)
 target_link_libraries(test_timus PRIVATE row_solver_bf)
+target_link_libraries(test_timus PRIVATE -lpthread)
 target_compile_definitions(test_timus PRIVATE TESTING_ONLY)
 set_property(TARGET test_timus PROPERTY CXX_STANDARD 17)
 
