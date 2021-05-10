@@ -1,5 +1,5 @@
-add_library(row_solver_bf row_solver_bf.cpp)
-target_include_directories(row_solver_bf INTERFACE .)
+add_library(row_solver_bf row_solver_bf/row_solver_bf.cpp)
+target_include_directories(row_solver_bf INTERFACE ./row_solver_bf)
 target_link_libraries(row_solver_bf PRIVATE one_row_solver)
 set_property(TARGET row_solver_bf PROPERTY CXX_STANDARD 17)
 
@@ -14,7 +14,7 @@ target_link_libraries(test_timus PRIVATE row_solver_bf)
 target_compile_definitions(test_timus PRIVATE TESTING_ONLY)
 set_property(TARGET test_timus PROPERTY CXX_STANDARD 17)
 
-add_executable(row_solver_testing row_solver_testing.cpp)
+add_executable(row_solver_testing row_solver_testing/row_solver_testing.cpp row_solver_testing/iterators.cpp)
 target_link_libraries(row_solver_testing PRIVATE row_solver_bf)
 target_link_libraries(row_solver_testing PRIVATE one_row_solver)
 set_property(TARGET row_solver_testing PROPERTY CXX_STANDARD 17)

@@ -1,6 +1,9 @@
 ﻿#include "row_solver_bf.hpp"
+#include "block.hpp"
+#include "cell.hpp"
 #include <iostream>
 #include <vector>
+#include <optional>
 
 int main()
 {
