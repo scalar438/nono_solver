@@ -1,4 +1,5 @@
 #pragma once
+#include <block.hpp>
 #include <optional>
 #include <vector>
 
@@ -10,7 +11,7 @@ public:
 	std::optional<std::vector<int>> next();
 
 private:
-	std::vector<int> m_data;
+	std::optional<std::vector<int>> m_data;
 };
 
 class PermutationsIterator
@@ -33,4 +34,24 @@ public:
 private:
 	std::optional<std::vector<int>> m_data;
 	int m_max_val;
+};
+
+class AllBlocksIterator
+{
+public:
+	AllBlocksIterator(int max_sum_len, int colors_count);
+	std::optional<std::vector<Block>> next();
+
+private:
+	PermutationsIterator m_blocks_perms;
+	PartitionsIterator m_block_lengths;
+	PermutationsRepIterator m_colors_iter;
+
+	std::vector<int> m_current_blocks_perm;
+	std::vector<int> m_current_blocks_lengths;
+	std::vector<int> m_current_blocks_colors;
+
+	int current_block_sum;
+
+	bool m_ended;
 };
