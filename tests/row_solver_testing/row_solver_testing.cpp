@@ -1,9 +1,154 @@
 ﻿#include "iterators.hpp"
+#include <algorithm>
+#include <atomic>
 #include <block.hpp>
 #include <cell.hpp>
+#include <functional>
 #include <iostream>
+#include <mutex>
 #include <optional>
+#include <row_solver.hpp>
 #include <row_solver_bf.hpp>
+#include <thread>
 #include <vector>
 
-int main() {}
+using namespace std;
+
+void print_cells(const vector<Cell> &cells)
+{
+	for (size_t i = 0, e = cells.size(); i != e; ++i)
+	{
+		std::cout << '{';
+		if (i >= 1) cout << ", ";
+		bool has_elem = false;
+		for (int j = 0; j <= MAX_COLORS; ++j)
+		{
+			if (cells[i].is_color_possible(j))
+			{
+				if (has_elem) cout << ", ";
+				cout << j;
+			}
+		}
+		cout << '}';
+	}
+	cout << '\n';
+}
+
+void print_blocks(const vector<Block> &blocks)
+{
+	cout << '[';
+	for (size_t i = 0, e = blocks.size(); i != e; ++i)
+	{
+		if (i >= 1) cout << ", ";
+		cout << '{' << blocks[i].color_number << ", " << blocks[i].block_length << '}';
+	}
+	cout << ']' << '\n';
+}
+
+class DataProducer
+{
+public:
+	DataProducer(int block_sum, int colors_count, size_t cells_count)
+	    : m_cells_iter(1, colors_count),
+	      m_blocks_iter(block_sum, colors_count),
+	      m_blocks_sum(block_sum),
+	      m_colors_count(colors_count)
+	{
+		m_current_cells = *m_cells_iter.next();
+	}
+
+	optional<pair<vector<Cell>, vector<Block>>> next()
+	{
+		lock_guard l(mtx);
+		auto blocks = m_blocks_iter.next();
+
+		if (!blocks)
+		{
+			if (auto cells = m_cells_iter.next())
+			{
+				m_current_cells = std::move(*cells);
+				m_blocks_iter   = AllBlocksIterator(m_blocks_sum, m_colors_count);
+				blocks          = m_blocks_iter.next();
+			}
+		}
+		if (!blocks) return std::nullopt;
+		return make_pair(m_current_cells, std::move(*blocks));
+	}
+
+private:
+	std::mutex mtx;
+
+	AllCellsIterator m_cells_iter;
+	AllBlocksIterator m_blocks_iter;
+
+	int m_blocks_sum;
+	int m_colors_count;
+
+	vector<Cell> m_current_cells;
+};
+
+void check(shared_ptr<DataProducer> data_producer, shared_ptr<atomic<bool>> finished,
+           shared_ptr<optional<pair<vector<Cell>, vector<Block>>>> failed_result,
+           shared_ptr<mutex> res_mtx)
+{
+	while (!*finished)
+	{
+		auto data = data_producer->next();
+		if (!data) return;
+
+		vector<size_t> changed_bf;
+		std::vector<Cell> cells_bf;
+		{
+			auto cells  = data->first;
+			auto blocks = data->second;
+
+			changed_bf = calculate_row_bf(cells, blocks);
+			sort(changed_bf.begin(), changed_bf.end());
+			cells_bf.swap(cells);
+		}
+
+		vector<size_t> changed_dp;
+		std::vector<Cell> cells_dp;
+		{
+			auto cells  = data->first;
+			auto blocks = data->second;
+
+			changed_dp = calculate_row(cells, blocks);
+			sort(changed_dp.begin(), changed_dp.end());
+			cells_dp.swap(cells);
+		}
+
+		if (changed_bf != changed_dp || cells_bf != cells_dp)
+		{
+			*finished = true;
+
+			lock_guard l(*res_mtx);
+			if (!*failed_result)
+			{
+				*failed_result = std::move(data);
+			}
+			return;
+		}
+	}
+}
+
+int main()
+{
+	auto data          = make_shared<DataProducer>(7, 1, 7);
+	auto finish_flag   = make_shared<atomic<bool>>(false);
+	auto failed_result = make_shared<optional<pair<vector<Cell>, vector<Block>>>>();
+	vector<thread> threads;
+	for (size_t i = 0; i != thread::hardware_concurrency(); ++i)
+		threads.emplace_back(bind(check, data, finish_flag, failed_result, make_shared<mutex>()));
+	for (auto &x : threads)
+		x.join();
+	if (*failed_result)
+	{
+		cout << "Fail!\n";
+		// Just for debugging
+		calculate_row((*failed_result)->first, (*failed_result)->second);
+		return -1;
+	}
+	else
+		cout << "Ok\n";
+}
