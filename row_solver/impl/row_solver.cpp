@@ -1,4 +1,5 @@
 #include "row_solver.hpp"
+#include "reversed_container.hpp"
 #include <algorithm>
 #include <set>
 #include <string>
@@ -8,183 +9,155 @@ class PlaceabilityCalculator
 public:
 	PlaceabilityCalculator(const std::vector<Cell> &cells, const std::vector<Block> &blocks)
 	{
-		m_first_not_empty =
-		    std::find_if(cells.cbegin(), cells.cend(),
-		                 [](const Cell &cell) { return !cell.is_color_possible(0); }) -
-		    cells.cbegin();
-
-		m_last_not_empty =
-		    std::find_if(cells.crbegin(), cells.crend(),
-		                 [](const Cell &cell) { return !cell.is_color_possible(0); }) -
-		    cells.crbegin();
-
-		m_prefix_positions =
-		    fill_positions(cells.begin(), cells.end(), blocks.begin(), blocks.end());
-
-		m_suffix_positions =
-		    fill_positions(cells.crbegin(), cells.rend(), blocks.rbegin(), blocks.rend());
+		m_prefix_placeability = fill_positions(cells, blocks);
+		m_suffix_placeability = fill_positions(ReversedContainer(cells), ReversedContainer(blocks));
 	}
 
 	// return true if we can place first block_index blocks on first cell_index cells
-	bool can_place_prefix(size_t cell_index, size_t block_index) const
+	bool can_place_prefix(size_t block_index, size_t cell_index) const
 	{
-		if (block_index == 0)
-		{
-			return cell_index <= m_first_not_empty;
-		}
-		else
-		{
-			return m_prefix_positions[block_index - 1] <= cell_index;
-		}
+		return m_prefix_placeability[block_index][cell_index];
 	}
 
 	// return true if we can place last block_index blocks on cell_index cells
-	bool can_place_suffix(size_t cell_index, size_t block_index) const
+	bool can_place_suffix(size_t block_index, size_t cell_index) const
 	{
-		if (block_index == 0)
-		{
-			return cell_index <= m_last_not_empty;
-		}
-		else
-		{
-			return m_suffix_positions[block_index - 1] <= cell_index;
-		}
+		return m_suffix_placeability[block_index][cell_index];
 	}
 
 private:
-	size_t m_first_not_empty;
-	size_t m_last_not_empty;
+	std::vector<std::vector<bool>> m_prefix_placeability;
 
-	std::vector<size_t> m_prefix_positions;
+	std::vector<std::vector<bool>> m_suffix_placeability;
 
-	std::vector<size_t> m_suffix_positions;
-
-	template <class ItCB, class ItCE, class ItBB, class ItBE>
-	static std::vector<size_t> fill_positions(ItCB cell_it, ItCE cell_it_end, ItBB block_it,
-	                                          ItBE block_it_end)
+	template <class TData, class TBlock>
+	static std::vector<std::vector<bool>> fill_positions(const TData &data, const TBlock &blocks)
 	{
-		std::vector<size_t> res;
-		res.reserve(block_it_end - block_it);
+		std::vector<std::vector<bool>> res;
 
-		size_t current_cell_index = 0;
-
-		size_t in_the_row_count = 0;
-		while (cell_it != cell_it_end && block_it != block_it_end)
+		const size_t n = data.size();
 		{
-			if (cell_it->is_color_possible(block_it->color_number))
-			{
-				++in_the_row_count;
-			}
-			else
-			{
-				in_the_row_count = 0;
-			}
-			if (in_the_row_count == block_it->block_length)
-			{
-				res.push_back(current_cell_index + 1);
-				in_the_row_count = 0;
-				++block_it;
-				in_the_row_count = 0;
-				current_cell_index += 2;
-
-				++cell_it;
-				if (cell_it != cell_it_end) ++cell_it;
-			}
-			else
-			{
-				++cell_it;
-				++current_cell_index;
-			}
+			size_t first_non_empty = 0;
+			while (first_non_empty != n && data[first_non_empty].is_color_possible(0))
+				++first_non_empty;
+			std::vector<bool> first_row;
+			first_row.reserve(n + 1);
+			while (first_row.size() <= first_non_empty)
+				first_row.push_back(true);
+			while (first_row.size() <= n)
+				first_row.push_back(false);
+			res.push_back(std::move(first_row));
 		}
+
+		for (size_t ib = 0; ib != blocks.size(); ++ib)
+		{
+			const size_t block_len = blocks[ib].block_length;
+			const int block_color  = blocks[ib].color_number;
+			std::vector<bool> end_allow_list{false};
+			size_t cur_matched = 0;
+			for (size_t i = 0; i != data.size(); ++i)
+			{
+				if (!data[i].is_color_possible(block_color))
+					cur_matched = 0;
+				else
+					++cur_matched;
+				auto calc_current_flag = [&]() {
+					if (cur_matched < block_len) return false;
+
+					size_t start_current_block = i - block_len + 1;
+					bool need_gap =
+					    ib != 0 && blocks[ib - 1].color_number == blocks[ib].color_number;
+					if (need_gap) --start_current_block;
+					if (start_current_block > n) return false;
+					return (!need_gap || data[start_current_block].is_color_possible(0)) &&
+					       res.back()[start_current_block];
+				};
+				end_allow_list.push_back(calc_current_flag());
+			}
+
+			for (size_t i = 0; i < n; ++i)
+			{
+				if (end_allow_list[i] && !end_allow_list[i + 1] && data[i].is_color_possible(0))
+				{
+					end_allow_list[i + 1] = true;
+				}
+			}
+
+			res.push_back(std::move(end_allow_list));
+		}
+
 		return res;
 	}
 };
 
 std::vector<size_t> calculate_row(std::vector<Cell> &cells, const std::vector<Block> &blocks)
 {
-	const size_t n = cells.size();
-	if (n == 0) return {};
+	PlaceabilityCalculator pc(cells, blocks);
 
-	while (1)
+	size_t cur_matched = 0;
+	const size_t k     = blocks.size();
+	const size_t n     = cells.size();
+	std::vector<Cell> result_values;
 	{
-		PlaceabilityCalculator pc(cells, blocks);
-
-		std::vector<Cell> new_cell_list;
-		{
-			Cell val;
-			val.set_impossible();
-			new_cell_list.assign(n, val);
-		}
-
-		const size_t blocks_count = blocks.size();
-		// Calculate empty cells
-		for (size_t i = 0; i != n; ++i)
-		{
-			if (cells[i].is_color_possible(0))
-			{
-				bool can_place = false;
-				for (size_t j = 0; j <= blocks_count; ++j)
-				{
-					if (pc.can_place_prefix(i, j) &&
-					    pc.can_place_suffix(n - i - 1, blocks_count - j))
-					{
-						can_place = true;
-						break;
-					}
-				}
-				if (!can_place)
-				{
-					cells[i].set_color_possible(0, false);
-				}
-			}
-		}
-
-		for (size_t k = 0; k != blocks_count; ++k)
-		{
-			size_t in_the_row_count = 0;
-			for (size_t i = 0; i != n; ++i)
-			{
-				if (cells[i].is_color_possible(blocks[k].color_number))
-				{
-					in_the_row_count += 1;
-				}
-				else
-				{
-					in_the_row_count = 0;
-				}
-				if (in_the_row_count < blocks[k].block_length) continue;
-
-				if (k != 0 && i - blocks[k].block_length <= n &&
-				    !cells[i - blocks[k].block_length].is_color_possible(0))
-					continue;
-				if (k != blocks_count - 1 && i + 1 != n && !cells[i + 1].is_color_possible(0))
-					continue;
-
-				size_t delta_prefix = k == 0 ? 0 : 1;
-				size_t delta_suffix = k == blocks_count - 1 ? 0 : 1;
-
-				if (pc.can_place_prefix(i + 1 - blocks[k].block_length - delta_prefix, k) &&
-				    pc.can_place_suffix(n - (i + delta_suffix), blocks_count - k - 1))
-				{
-					for (size_t j = i - blocks[k].block_length + 1; j <= i; ++j)
-					{
-						new_cell_list[j].set_color_possible(blocks[k].color_number, true);
-					}
-					if (i - blocks[k].block_length < n)
-						new_cell_list[i - blocks[k].block_length].set_color_possible(0, true);
-					if (i + 1 < n) new_cell_list[i + 1].set_color_possible(0, true);
-				}
-			}
-		}
-		bool all_equal = true;
-		for (size_t i = 0; i != n; ++i)
-		{
-			if (cells[i] != new_cell_list[i]) all_equal = false;
-			cells[i] &= new_cell_list[i];
-		}
-		if (all_equal) break;
+		Cell c;
+		c.set_impossible();
+		result_values.assign(cells.size(), c);
 	}
 
-	std::vector<size_t> result;
-	return result;
+	size_t colors_status[MAX_COLORS] = {0};
+
+	for (size_t i = 0; i != n; ++i)
+	{
+		const auto &v_data = cells[i];
+		for (int i = 0; i != MAX_COLORS; ++i)
+		{
+			if (v_data.is_color_possible(i + 1))
+				colors_status[i] += 1;
+			else
+				colors_status[i] = 0;
+		}
+		bool can_be_empty = false;
+
+		for (size_t j = 0; j <= k; ++j)
+		{
+			if (!can_be_empty)
+			{
+				can_be_empty = v_data.is_color_possible(0) && pc.can_place_prefix(j, i) &&
+				               pc.can_place_suffix(k - j, n - i - 1);
+			}
+			if (j != k && colors_status[blocks[j].color_number - 1] >= blocks[j].block_length)
+			{
+				bool need_gap_after = i + 1 != n && j <= k - 2 &&
+				                      blocks[j + 1].color_number == blocks[j].color_number;
+				if (need_gap_after && !cells[i + 1].is_color_possible(0)) continue;
+
+				bool need_gap_before = i - blocks[j].block_length < n && j != 0 &&
+				                       blocks[j - 1].color_number == blocks[j].color_number;
+				if (need_gap_before && !cells[i - blocks[j].block_length].is_color_possible(0))
+					continue;
+
+				size_t prefix_index = i - blocks[j].block_length + size_t(!need_gap_before);
+				if (prefix_index > n) continue;
+
+				size_t suffix_index = n - i - 2u + size_t(!need_gap_after);
+				if (suffix_index > n) continue;
+
+				bool can_placed = pc.can_place_prefix(j, prefix_index) &&
+				                  pc.can_place_suffix(k - j - 1, suffix_index);
+				if (can_placed)
+				{
+					for (size_t x = i - blocks[j].block_length + 1; x <= i; ++x)
+						result_values[x].set_color_possible(blocks[j].color_number, true);
+				}
+			}
+		}
+		if (can_be_empty) result_values[i].set_color_possible(0, true);
+	}
+	std::vector<size_t> res;
+	for (size_t i = 0; i != n; ++i)
+	{
+		if (result_values[i] != cells[i]) res.push_back(i);
+	}
+	cells.swap(result_values);
+	return res;
 }

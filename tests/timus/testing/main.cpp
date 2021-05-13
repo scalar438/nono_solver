@@ -71,7 +71,6 @@ pair<string, string> solve(string str, vector<Block> &blocks)
 	}
 
 	calculate_row_bf(cells_exp, blocks);
-	// calculate_row(cells_sol, blocks);
 	return make_pair(from_vec_cell(cells_exp), timus_sol::calc(str, blocks_timus));
 }
 

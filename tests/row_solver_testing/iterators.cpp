@@ -184,7 +184,8 @@ std::optional<std::vector<Cell>> AllCellsIterator::next()
 		if (m_current_cells_count != m_max_cells_count)
 		{
 			++m_current_cells_count;
-			m_states_iter = PermutationsRepIterator(m_cells_states_count, m_current_cells_count);
+			m_states_iter =
+			    PermutationsRepIterator(m_cells_states_count, int(m_current_cells_count));
 			return next();
 		}
 	}

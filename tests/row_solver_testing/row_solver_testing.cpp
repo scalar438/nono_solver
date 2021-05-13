@@ -48,8 +48,8 @@ void print_blocks(const vector<Block> &blocks)
 class DataProducer
 {
 public:
-	DataProducer(int block_sum, int colors_count, size_t cells_count)
-	    : m_cells_iter(1, colors_count),
+	DataProducer(int block_sum, int colors_count, size_t max_cells_count)
+	    : m_cells_iter(max_cells_count, colors_count),
 	      m_blocks_iter(block_sum, colors_count),
 	      m_blocks_sum(block_sum),
 	      m_colors_count(colors_count)
@@ -66,6 +66,13 @@ public:
 		{
 			if (auto cells = m_cells_iter.next())
 			{
+				for (auto &c : *cells)
+				{
+					cout << c.is_color_possible(0) + c.is_color_possible(1) * 2 +
+					            c.is_color_possible(2) * 4 + c.is_color_possible(3) * 8
+					     << ' ';
+				}
+				cout << '\n';
 				m_current_cells = std::move(*cells);
 				m_blocks_iter   = AllBlocksIterator(m_blocks_sum, m_colors_count);
 				blocks          = m_blocks_iter.next();
@@ -134,12 +141,13 @@ void check(shared_ptr<DataProducer> data_producer, shared_ptr<atomic<bool>> fini
 
 int main()
 {
-	auto data          = make_shared<DataProducer>(7, 1, 7);
+	auto data          = make_shared<DataProducer>(4, 3, 4);
 	auto finish_flag   = make_shared<atomic<bool>>(false);
 	auto failed_result = make_shared<optional<pair<vector<Cell>, vector<Block>>>>();
+	auto res_mtx       = make_shared<mutex>();
 	vector<thread> threads;
 	for (size_t i = 0; i != thread::hardware_concurrency(); ++i)
-		threads.emplace_back(bind(check, data, finish_flag, failed_result, make_shared<mutex>()));
+		threads.emplace_back(bind(check, data, finish_flag, failed_result, res_mtx));
 	for (auto &x : threads)
 		x.join();
 	if (*failed_result)
