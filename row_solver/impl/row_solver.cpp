@@ -100,7 +100,7 @@ private:
 	}
 };
 
-std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<Block> &blocks)
+std::vector<size_t> calculate_row(std::vector<Cell> &cells, const std::vector<Block> &blocks)
 {
 	const size_t n = cells.size();
 	if (n == 0) return {};

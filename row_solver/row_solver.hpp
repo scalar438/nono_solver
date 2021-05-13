@@ -6,5 +6,5 @@
 /// Calculate puzzle for one row.
 /// @param cells      - row, vector of cells with current state
 /// @param block_list - vector of pair (color number, block length)
-/// @return  number of cells with changed state
-std::vector<size_t> calculate_row(std::vector<Cell> &cells, std::vector<Block> &blocks);
+/// @return cells indexes with changed state
+std::vector<size_t> calculate_row(std::vector<Cell> &cells, const std::vector<Block> &blocks);
