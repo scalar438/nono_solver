@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <vector>
 
 template <class T> class ReversedContainer
@@ -13,7 +14,7 @@ public:
 	size_t find(typename T::value_type c) const
 	{
 		auto rfind_res = m_data.rfind(c);
-		if (rfind_res == string::npos) return string::npos;
+		if (rfind_res == std::string::npos) return std::string::npos;
 		return m_size - rfind_res - 1;
 	}
 
