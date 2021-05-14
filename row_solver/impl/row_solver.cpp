@@ -91,14 +91,14 @@ private:
 	}
 };
 
-}
+} // namespace
 
 std::vector<size_t> calculate_row(std::vector<Cell> &cells, const std::vector<Block> &blocks)
 {
 	PlaceabilityCalculator pc(cells, blocks);
 
-	const size_t k     = blocks.size();
-	const size_t n     = cells.size();
+	const size_t k = blocks.size();
+	const size_t n = cells.size();
 	std::vector<Cell> result_values;
 	{
 		Cell c;
