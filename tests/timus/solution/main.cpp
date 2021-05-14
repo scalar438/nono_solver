@@ -113,9 +113,9 @@ std::string calc(const std::string &data, const std::vector<int> &blocks)
 	auto placeability_suffix =
 	    calc_placeability(ReversedContainer(data), ReversedContainer(blocks));
 
-	size_t cur_matched = 0;
-	const size_t k     = blocks.size();
-	const int n        = int(data.size());
+	int cur_matched = 0;
+	const size_t k  = blocks.size();
+	const int n     = int(data.size());
 	std::vector<char> result_values(data.size());
 
 	for (int i = 0; i != n; ++i)
