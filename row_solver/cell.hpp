@@ -12,13 +12,13 @@ public:
 	/// determined If not, return nullopt
 	std::optional<int> get_color() const;
 
-	bool is_color_possible(int color_number) const;
+	bool is_color_possible(uint32_t color_number) const;
 
 	bool is_impossible() const;
 
 	void set_impossible();
 
-	void set_color_possible(int color_number, bool possible);
+	void set_color_possible(uint32_t color_number, bool possible);
 
 	bool operator!=(const Cell &a) const;
 

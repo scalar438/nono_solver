@@ -35,7 +35,7 @@ std::optional<int> Cell::get_color() const
 	return get_bit_number(m_data);
 }
 
-bool Cell::is_color_possible(int color_number) const
+bool Cell::is_color_possible(uint32_t color_number) const
 {
 	return (m_data & (1u << color_number)) != 0;
 }
@@ -50,7 +50,7 @@ void Cell::set_impossible()
 	m_data = 0;
 }
 
-void Cell::set_color_possible(int color_number, bool possible)
+void Cell::set_color_possible(uint32_t color_number, bool possible)
 {
 	if (possible)
 		m_data |= (1u << color_number);

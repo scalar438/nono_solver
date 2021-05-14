@@ -1,8 +1,9 @@
 #include "row_solver.hpp"
 #include "reversed_container.hpp"
 #include <algorithm>
-#include <set>
-#include <string>
+
+namespace
+{
 
 class PlaceabilityCalculator
 {
@@ -14,13 +15,13 @@ public:
 	}
 
 	// return true if we can place first block_index blocks on first cell_index cells
-	bool can_place_prefix(size_t block_index, size_t cell_index) const
+	[[nodiscard]] bool can_place_prefix(size_t block_index, size_t cell_index) const
 	{
 		return m_prefix_placeability[block_index][cell_index];
 	}
 
 	// return true if we can place last block_index blocks on cell_index cells
-	bool can_place_suffix(size_t block_index, size_t cell_index) const
+	[[nodiscard]] bool can_place_suffix(size_t block_index, size_t cell_index) const
 	{
 		return m_suffix_placeability[block_index][cell_index];
 	}
@@ -90,11 +91,12 @@ private:
 	}
 };
 
+}
+
 std::vector<size_t> calculate_row(std::vector<Cell> &cells, const std::vector<Block> &blocks)
 {
 	PlaceabilityCalculator pc(cells, blocks);
 
-	size_t cur_matched = 0;
 	const size_t k     = blocks.size();
 	const size_t n     = cells.size();
 	std::vector<Cell> result_values;
@@ -109,12 +111,12 @@ std::vector<size_t> calculate_row(std::vector<Cell> &cells, const std::vector<Bl
 	for (size_t i = 0; i != n; ++i)
 	{
 		const auto &v_data = cells[i];
-		for (int i = 0; i != MAX_COLORS; ++i)
+		for (int j = 0; j != MAX_COLORS; ++j)
 		{
-			if (v_data.is_color_possible(i + 1))
-				colors_status[i] += 1;
+			if (v_data.is_color_possible(j + 1))
+				colors_status[j] += 1;
 			else
-				colors_status[i] = 0;
+				colors_status[j] = 0;
 		}
 		bool can_be_empty = false;
 

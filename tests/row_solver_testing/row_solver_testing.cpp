@@ -14,37 +14,6 @@
 
 using namespace std;
 
-void print_cells(const vector<Cell> &cells)
-{
-	for (size_t i = 0, e = cells.size(); i != e; ++i)
-	{
-		std::cout << '{';
-		if (i >= 1) cout << ", ";
-		bool has_elem = false;
-		for (int j = 0; j <= MAX_COLORS; ++j)
-		{
-			if (cells[i].is_color_possible(j))
-			{
-				if (has_elem) cout << ", ";
-				cout << j;
-			}
-		}
-		cout << '}';
-	}
-	cout << '\n';
-}
-
-void print_blocks(const vector<Block> &blocks)
-{
-	cout << '[';
-	for (size_t i = 0, e = blocks.size(); i != e; ++i)
-	{
-		if (i >= 1) cout << ", ";
-		cout << '{' << blocks[i].color_number << ", " << blocks[i].block_length << '}';
-	}
-	cout << ']' << '\n';
-}
-
 class DataProducer
 {
 public:
