@@ -89,7 +89,7 @@ void check(shared_ptr<DataProducer> data_producer, shared_ptr<atomic<bool>> fini
 			auto cells  = data->first;
 			auto blocks = data->second;
 
-			changed_dp = calculate_row(cells, blocks);
+			changed_dp = calculate_line(cells, blocks);
 			sort(changed_dp.begin(), changed_dp.end());
 			cells_dp.swap(cells);
 		}
@@ -123,7 +123,7 @@ int main()
 	{
 		cout << "Fail!\n";
 		// Just for debugging
-		calculate_row((*failed_result)->first, (*failed_result)->second);
+		calculate_line((*failed_result)->first, (*failed_result)->second);
 		return -1;
 	}
 	else

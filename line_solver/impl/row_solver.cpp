@@ -93,7 +93,7 @@ private:
 
 } // namespace
 
-std::vector<size_t> calculate_row(std::vector<Cell> &cells, const std::vector<Block> &blocks)
+std::vector<size_t> calculate_line(std::vector<Cell> &cells, const std::vector<Block> &blocks)
 {
 	PlaceabilityCalculator pc(cells, blocks);
 
