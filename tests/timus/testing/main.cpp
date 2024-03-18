@@ -148,11 +148,11 @@ void run_in_one_thread(std::mutex &mtx, vector<pair<vector<Block> *, string *>> 
 			std::lock_guard g(mtx);
 			data.clear();
 			OneRunData data;
-			data.ans_exp    = move(res.first);
-			data.ans_actual = move(res.second);
+			data.ans_exp    = std::move(res.first);
+			data.ans_actual = std::move(res.second);
 			data.blocks     = *one_run_data.first;
 			data.row        = *one_run_data.second;
-			answer_mismatch = move(data);
+			answer_mismatch = std::move(data);
 		}
 	}
 }

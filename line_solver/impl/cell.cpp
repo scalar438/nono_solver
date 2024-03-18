@@ -1,4 +1,6 @@
 #include "cell.hpp"
+#include <cstdint>
+#include <limits>
 
 namespace
 {

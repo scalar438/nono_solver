@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <optional>
 
 const int MAX_COLORS = 31;
@@ -9,7 +10,7 @@ public:
 	explicit Cell();
 
 	/// Return 0 (background color) or color number (number from 1 to MAX_COLORS) if cell state is
-	/// determined If not, return nullopt
+	/// determined. If not, return nullopt
 	std::optional<int> get_color() const;
 
 	bool is_color_possible(uint32_t color_number) const;

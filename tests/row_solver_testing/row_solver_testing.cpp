@@ -5,6 +5,7 @@
 #include <cell.hpp>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <row_solver.hpp>
