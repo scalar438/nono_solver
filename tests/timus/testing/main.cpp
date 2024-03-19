@@ -1,6 +1,6 @@
 #include "row_solver_bf.hpp"
-#include <cell.hpp>
-#include <row_solver.hpp>
+#include <row_solver/cell.hpp>
+#include <row_solver/row_solver.hpp>
 
 #include <chrono>
 #include <iostream>

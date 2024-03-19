@@ -1,14 +1,14 @@
 ﻿#include "iterators.hpp"
 #include <algorithm>
 #include <atomic>
-#include <block.hpp>
-#include <cell.hpp>
+#include <row_solver/cell.hpp>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <optional>
-#include <row_solver.hpp>
+#include <row_solver/block.hpp>
+#include <row_solver/row_solver.hpp>
 #include <row_solver_bf.hpp>
 #include <thread>
 #include <vector>
@@ -76,7 +76,7 @@ void check(shared_ptr<DataProducer> data_producer, shared_ptr<atomic<bool>> fini
 		vector<size_t> changed_bf;
 		std::vector<Cell> cells_bf;
 		{
-			auto cells  = data->first;
+			auto cells         = data->first;
 			const auto &blocks = data->second;
 
 			changed_bf = calculate_row_bf(cells, blocks);
@@ -87,7 +87,7 @@ void check(shared_ptr<DataProducer> data_producer, shared_ptr<atomic<bool>> fini
 		vector<size_t> changed_dp;
 		std::vector<Cell> cells_dp;
 		{
-			auto cells  = data->first;
+			auto cells         = data->first;
 			const auto &blocks = data->second;
 
 			changed_dp = calculate_line(cells, blocks);
