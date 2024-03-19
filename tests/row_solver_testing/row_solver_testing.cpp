@@ -77,7 +77,7 @@ void check(shared_ptr<DataProducer> data_producer, shared_ptr<atomic<bool>> fini
 		std::vector<Cell> cells_bf;
 		{
 			auto cells  = data->first;
-			auto blocks = data->second;
+			const auto &blocks = data->second;
 
 			changed_bf = calculate_row_bf(cells, blocks);
 			sort(changed_bf.begin(), changed_bf.end());
@@ -88,7 +88,7 @@ void check(shared_ptr<DataProducer> data_producer, shared_ptr<atomic<bool>> fini
 		std::vector<Cell> cells_dp;
 		{
 			auto cells  = data->first;
-			auto blocks = data->second;
+			const auto &blocks = data->second;
 
 			changed_dp = calculate_line(cells, blocks);
 			sort(changed_dp.begin(), changed_dp.end());

@@ -4,7 +4,7 @@
 #include <optional>
 #include <vector>
 
-// Iterate over all partitions with given sum
+// Iterate over all partitions with the given sum
 class PartitionsIterator
 {
 public:

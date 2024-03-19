@@ -51,7 +51,7 @@ void f(const std::vector<Cell> &cells, const std::vector<Block> &blocks, size_t 
 		}
 		return;
 	}
-	// If current block is not first, we have to add one empty cell
+	// If the current block is not first, we have to add one empty cell
 	if (current_block_index != 0 &&
 	    blocks[current_block_index - 1].color_number == blocks[current_block_index].color_number)
 	{
@@ -71,7 +71,7 @@ void f(const std::vector<Cell> &cells, const std::vector<Block> &blocks, size_t 
 		}
 		if (in_the_row_count >= blocks[current_block_index].block_length)
 		{
-			// We can place the block. Save position and move farther
+			// We can place the block. Save the position and move further
 			blocks_pos[current_block_index] =
 			    current_cell_index - blocks[current_block_index].block_length + 1;
 			f(cells, blocks, current_cell_index + 1, current_block_index + 1, blocks_pos,
