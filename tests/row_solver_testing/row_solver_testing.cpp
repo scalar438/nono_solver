@@ -1,14 +1,14 @@
 ﻿#include "iterators.hpp"
 #include <algorithm>
 #include <atomic>
-#include <row_solver/cell.hpp>
 #include <functional>
 #include <iostream>
+#include <line_solver/cell.hpp>
 #include <memory>
 #include <mutex>
 #include <optional>
-#include <row_solver/block.hpp>
-#include <row_solver/row_solver.hpp>
+#include <line_solver/block.hpp>
+#include <line_solver/row_solver.hpp>
 #include <row_solver_bf.hpp>
 #include <thread>
 #include <vector>

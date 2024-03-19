@@ -1,7 +1,7 @@
 #include <chrono>
 #include <iostream>
+#include <line_solver/row_solver.hpp>
 #include <queue>
-#include <row_solver/row_solver.hpp>
 #include <set>
 #include <sstream>
 #include <string>
@@ -115,63 +115,66 @@ int main()
 	}
 
 	// pair (is_row, index)
-	std::queue<std::pair<bool, int>> q;
 	std::set<std::pair<bool, int>> s;
 	for (int i = 0; i < height; ++i)
-	{
-		std::pair<bool, int> v{true, i};
-		q.emplace(v);
-		s.emplace(v);
-	}
+		s.emplace(true, i);
 	for (int i = 0; i < width; ++i)
-	{
-		std::pair<bool, int> v{false, i};
-		q.emplace(v);
-		s.emplace(v);
-	}
+		s.emplace(false, i);
 
-	while (!q.empty())
+	bool cur_d = false;
+	while (!s.empty())
 	{
-		auto cur = q.front();
-		q.pop();
-		s.erase(cur);
+		// Pick the first element with direction == cur_d
+		std::set<std::pair<bool, int>>::const_iterator cur =
+		    s.lower_bound(std::make_pair(cur_d, -1));
 
-		write_fld(fld, cur);
+		if (cur == s.end())
+		{
+			cur_d = !cur_d;
+			// it will be found because s is not empty
+			cur = s.lower_bound(std::make_pair(cur_d, -1));
+		}
+		else
+		{
+			// it's possible we have found element but it is from another direction
+			// Just change current direction
+			if (cur->first != cur_d) cur_d = !cur_d;
+		}
+
+		write_fld(fld, *cur);
 
 		std::vector<Cell> vc;
-		if (cur.first)
+		if (cur->first)
 		{
 			for (int i = 0; i != width; ++i)
-				vc.push_back(fld[cur.second][i]);
+				vc.push_back(fld[cur->second][i]);
 		}
 		else
 		{
 			for (int i = 0; i != height; ++i)
-				vc.push_back(fld[i][cur.second]);
+				vc.push_back(fld[i][cur->second]);
 		}
 
-		auto &blocks = (cur.first ? blocks_h[cur.second] : blocks_v[cur.second]);
+		auto &blocks = (cur->first ? blocks_h[cur->second] : blocks_v[cur->second]);
 
-		for (auto idx : calculate_row(vc, blocks))
+		for (auto idx : calculate_line(vc, blocks))
 		{
-			if (cur.first)
+			if (cur->first)
 			{
 				for (int i = 0; i != width; ++i)
-					fld[cur.second][i] = vc[i];
+					fld[cur->second][i] = vc[i];
 			}
 			else
 			{
 				for (int i = 0; i != height; ++i)
-					fld[i][cur.second] = vc[i];
+					fld[i][cur->second] = vc[i];
 			}
-			std::pair<bool, int> v{!cur.first, int(idx)};
-			if (!s.contains(v))
-			{
-				q.emplace(v);
-				s.emplace(v);
-			}
+			std::pair<bool, int> v{!cur->first, int(idx)};
+			if (!s.contains(v)) s.emplace(v);
 		}
 
-		// std::this_thread::sleep_for(2000ms);
+		s.erase(cur);
+
+		std::this_thread::sleep_for(2000ms);
 	}
 }
