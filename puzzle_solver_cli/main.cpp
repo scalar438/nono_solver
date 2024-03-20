@@ -161,16 +161,13 @@ int main()
 		{
 			if (cur->first)
 			{
-				for (int i = 0; i != width; ++i)
-					fld[cur->second][i] = vc[i];
+				fld[cur->second][idx] = vc[idx];
 			}
 			else
 			{
-				for (int i = 0; i != height; ++i)
-					fld[i][cur->second] = vc[i];
+				fld[idx][cur->second] = vc[idx];
 			}
-			std::pair<bool, int> v{!cur->first, int(idx)};
-			if (!s.contains(v)) s.emplace(v);
+			s.emplace(!cur->first, int(idx));
 		}
 
 		s.erase(cur);
