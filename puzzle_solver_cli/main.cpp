@@ -1,6 +1,6 @@
 #include <chrono>
 #include <iostream>
-#include <line_solver/row_solver.hpp>
+#include <line_solver/line_solver.hpp>
 #include <queue>
 #include <set>
 #include <sstream>

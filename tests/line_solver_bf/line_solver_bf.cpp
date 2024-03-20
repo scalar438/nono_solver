@@ -1,4 +1,4 @@
-#include "row_solver_bf.hpp"
+#include "line_solver_bf.hpp"
 
 namespace
 {
