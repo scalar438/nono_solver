@@ -14,13 +14,13 @@ public:
 		m_suffix_placeability = fill_positions(ReversedContainer(cells), ReversedContainer(blocks));
 	}
 
-	// return true if we can place first block_index blocks on first cell_index cells
+	// return true if we can place first block_index blocks on the first cell_index cells
 	[[nodiscard]] bool can_place_prefix(size_t block_index, size_t cell_index) const
 	{
 		return m_prefix_placeability[block_index][cell_index];
 	}
 
-	// return true if we can place last block_index blocks on cell_index cells
+	// return true if we can place last block_index blocks on the last cell_index cells
 	[[nodiscard]] bool can_place_suffix(size_t block_index, size_t cell_index) const
 	{
 		return m_suffix_placeability[block_index][cell_index];
@@ -69,6 +69,7 @@ private:
 					bool need_gap =
 					    ib != 0 && blocks[ib - 1].color_number == blocks[ib].color_number;
 					if (need_gap) --start_current_block;
+					// start_current block is unsigned, so we can't use (start_current_block < 0) here
 					if (start_current_block > n) return false;
 					return (!need_gap || data[start_current_block].is_color_possible(0)) &&
 					       res.back()[start_current_block];

@@ -29,23 +29,23 @@ void write_fld(const std::vector<std::vector<Cell>> &fld, const std::pair<bool, 
 		for (int j = 0, ej = fld[i].size(); j != ej; ++j)
 		{
 			if (!marked.first && marked.second == j) set_yellow();
-			char c;
+			const char *c;
 			auto &cell = fld[i][j];
 			if (cell.is_color_possible(0))
 			{
 				if (cell.is_color_possible(1))
-					c = '?';
+					c = "<>";
 				else
-					c = '.';
+					c = "--";
 			}
 			else
 			{
 				if (cell.is_color_possible(1))
-					c = 'X';
+					c = "NN";
 				else
 				{
 					// It won't happen in normal puzzles
-					c = 'f';
+					c = "69";
 				}
 			}
 			std::cout << c;
