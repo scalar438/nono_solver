@@ -304,7 +304,7 @@ std::ostream &operator<<(std::ostream &os, const Field &fld)
 		{
 			switch (fld.m_field[idx])
 			{
-			case UNKNOWN: str[j] = '?'; break;
+			case UNKNOWN: str[j] = '#'; break; // Let's be like that
 			case FILLED: str[j] = '#'; break;
 			case EMPTY: str[j] = '.'; break;
 			}
