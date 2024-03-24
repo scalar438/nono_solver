@@ -20,3 +20,8 @@ target_link_libraries(line_solver_testing PRIVATE line_solver_bf)
 target_link_libraries(line_solver_testing PRIVATE line_solver)
 target_link_libraries(line_solver_testing PRIVATE -lpthread)
 set_property(TARGET line_solver_testing PROPERTY CXX_STANDARD 17)
+
+add_executable(spoj_solution spoj/main.cpp)
+target_compile_definitions(spoj_solution PRIVATE MY_LOCAL_ONLINE_JUDGE)
+# Sphere online judge accepts only C++14
+set_property(TARGET spoj_solution PROPERTY CXX_STANDARD 14)
