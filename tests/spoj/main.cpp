@@ -15,9 +15,10 @@ public:
 	}
 	~TestTimer()
 	{
-		cout << "Test " << s_counter
-		     << " time: " << 
-			 std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::high_resolution_clock::now() - m_start_time).count()
+		cout << "Test " << s_counter << " time: "
+		     << std::chrono::duration_cast<std::chrono::milliseconds>(
+		            std::chrono::high_resolution_clock::now() - m_start_time)
+		            .count()
 		     << "ms\n";
 	}
 
@@ -329,8 +330,9 @@ std::ostream &operator<<(std::ostream &os, const Field &fld)
 		{
 			switch (fld.m_field[idx])
 			{
+				// On the server characters except # and . are considered as WA
+				// But it's convenient to write some other characters for testing purposes
 #ifdef MY_LOCAL_ONLINE_JUDGE
-			// Change the local output for testing purposes
 			case UNKNOWN: str[j] = '?'; break;
 #else
 			case UNKNOWN: str[j] = '#'; break;
