@@ -2,11 +2,36 @@
 #include <fstream>
 std::ifstream cin("input.txt");
 std::ofstream cout("output.txt");
+
+#include <chrono>
+
+class TestTimer
+{
+public:
+	TestTimer()
+	{
+		++s_counter;
+		m_start_time = std::chrono::high_resolution_clock::now();
+	}
+	~TestTimer()
+	{
+		cout << "Test " << s_counter
+		     << " time: " << 
+			 std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::high_resolution_clock::now() - m_start_time).count()
+		     << "ms\n";
+	}
+
+private:
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_start_time;
+	static int s_counter;
+};
+
+int TestTimer::s_counter = 0;
+
 #else
 #include <iostream>
 using namespace std;
 #endif
-
 #include <algorithm>
 #include <set>
 #include <string>
@@ -304,7 +329,12 @@ std::ostream &operator<<(std::ostream &os, const Field &fld)
 		{
 			switch (fld.m_field[idx])
 			{
-			case UNKNOWN: str[j] = '#'; break; // Let's be like that
+#ifdef MY_LOCAL_ONLINE_JUDGE
+			// Change the local output for testing purposes
+			case UNKNOWN: str[j] = '?'; break;
+#else
+			case UNKNOWN: str[j] = '#'; break;
+#endif
 			case FILLED: str[j] = '#'; break;
 			case EMPTY: str[j] = '.'; break;
 			}
@@ -314,8 +344,8 @@ std::ostream &operator<<(std::ostream &os, const Field &fld)
 	return os;
 }
 
-bool logical_solver(Field &fld, const std::vector<std::vector<int>> &blocks_v,
-                    const std::vector<std::vector<int>> blocks_h,
+bool logical_solver(Field &fld, const std::vector<std::vector<int>> &col_blocks,
+                    const std::vector<std::vector<int>> row_blocks,
                     std::set<int> marked = std::set<int>())
 {
 	const int width = fld.width();
@@ -342,8 +372,7 @@ bool logical_solver(Field &fld, const std::vector<std::vector<int>> &blocks_v,
 		bool is_row = elem >= width;
 
 		auto line    = is_row ? fld.row(elem -= width) : fld.col(elem);
-		auto &blocks = is_row ? blocks_h[elem] : blocks_v[elem];
-
+		auto &blocks = is_row ? row_blocks[elem] : col_blocks[elem];
 
 		if (line_solver(line, blocks, pos_changed))
 		{
@@ -362,10 +391,10 @@ bool logical_solver(Field &fld, const std::vector<std::vector<int>> &blocks_v,
 	return true;
 }
 
-void guessing_solver(Field &fld, const std::vector<std::vector<int>> &blocks_v,
-                     const std::vector<std::vector<int>> &blocks_h)
+void guessing_solver(Field &fld, const std::vector<std::vector<int>> &col_blocks,
+                     const std::vector<std::vector<int>> &row_blocks)
 {
-	logical_solver(fld, blocks_v, blocks_h);
+	logical_solver(fld, col_blocks, row_blocks);
 	while (!fld.unknown_cells().empty())
 	{
 		bool contradiction_found = false;
@@ -380,7 +409,7 @@ void guessing_solver(Field &fld, const std::vector<std::vector<int>> &blocks_v,
 			for (int i = 0; i < 2; ++i)
 			{
 				fld_copies[i].set_cell_by_index(x, vals[i]);
-				results[i] = logical_solver(fld_copies[i], blocks_v, blocks_h,
+				results[i] = logical_solver(fld_copies[i], col_blocks, row_blocks,
 				                            {x % fld.width(), x / fld.width() + fld.width()});
 			}
 			for (int i = 0; i < 2; ++i)
@@ -430,6 +459,10 @@ int main()
 
 		int w, h;
 		cin >> h >> w;
+
+#ifdef MY_LOCAL_ONLINE_JUDGE
+		TestTimer t;
+#endif
 
 		std::vector<std::vector<int>> blocks_h = read_lines(h);
 		std::vector<std::vector<int>> blocks_v = read_lines(w);
