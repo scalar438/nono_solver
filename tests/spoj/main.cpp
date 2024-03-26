@@ -2,33 +2,6 @@
 #include <fstream>
 std::ifstream cin("input.txt");
 std::ofstream cout("output.txt");
-
-#include <chrono>
-
-class TestTimer
-{
-public:
-	TestTimer()
-	{
-		++s_counter;
-		m_start_time = std::chrono::high_resolution_clock::now();
-	}
-	~TestTimer()
-	{
-		cout << "Test " << s_counter << " time: "
-		     << std::chrono::duration_cast<std::chrono::milliseconds>(
-		            std::chrono::high_resolution_clock::now() - m_start_time)
-		            .count()
-		     << "ms\n";
-	}
-
-private:
-	std::chrono::time_point<std::chrono::high_resolution_clock> m_start_time;
-	static int s_counter;
-};
-
-int TestTimer::s_counter = 0;
-
 #else
 #include <iostream>
 using namespace std;
@@ -461,10 +434,6 @@ int main()
 
 		int w, h;
 		cin >> h >> w;
-
-#ifdef MY_LOCAL_ONLINE_JUDGE
-		TestTimer t;
-#endif
 
 		std::vector<std::vector<int>> blocks_h = read_lines(h);
 		std::vector<std::vector<int>> blocks_v = read_lines(w);

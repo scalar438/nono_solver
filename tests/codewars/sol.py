@@ -254,7 +254,7 @@ small_undeducible = (
     ((2, 1), (1, ), (4,), (1,), (2, 1)),
     ((1, 1), (1, 1, 1), (3, ), (1, ), (1, 1, 1)))
 
-small_unsollvable = (
+small_undeducible2 = (
     ((1, 1), (2,), (3, ), (2, ), (2, )),
     ((2,), (2, ), (3, ), (2, ), (1, 1)))
     
@@ -276,7 +276,7 @@ shapes = (
     ))
 
 
-clues = small_unsollvable
+clues = shapes
 a = solve(clues, len(clues[0]), len(clues[1]))
 for q in a:
     print([2 - x for x in q])
