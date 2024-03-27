@@ -54,7 +54,7 @@ void write_fld(const std::vector<std::vector<Cell>> &fld, const std::pair<bool, 
 		std::cout << std::endl;
 		if (marked.first && marked.second == i) set_default();
 	}
-	std::cout << "--------------------------------------\n";
+	std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
 }
 
 int main()
@@ -65,38 +65,28 @@ int main()
 	std::vector<std::vector<Block>> blocks_h(height);
 	for (auto &cur_blocks : blocks_h)
 	{
-		std::string str;
-		while (1)
+		while (true)
 		{
-			std::getline(std::cin, str);
-			if (str.size() != 0) break;
-		}
-
-		std::istringstream is(str);
-
-		int x;
-		while (is >> x)
-		{
-			cur_blocks.emplace_back(1, x);
+			int x;
+			std::cin >> x;
+			if (x != 0)
+				cur_blocks.emplace_back(1, x);
+			else
+				break;
 		}
 	}
 
 	std::vector<std::vector<Block>> blocks_v(width);
 	for (auto &cur_blocks : blocks_v)
 	{
-		std::string str;
-		while (1)
+		while (true)
 		{
-			std::getline(std::cin, str);
-			if (str.size() != 0) break;
-		}
-
-		std::istringstream is(str);
-
-		int x;
-		while (is >> x)
-		{
-			cur_blocks.emplace_back(1, x);
+			int x;
+			std::cin >> x;
+			if (x != 0)
+				cur_blocks.emplace_back(1, x);
+			else
+				break;
 		}
 	}
 
@@ -107,6 +97,7 @@ int main()
 		for (int j = 0; j < width; ++j)
 		{
 			Cell c;
+			c.set_impossible();
 			c.set_color_possible(0, true);
 			c.set_color_possible(1, true);
 			row.push_back(c);

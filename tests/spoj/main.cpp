@@ -202,10 +202,7 @@ class Field
 public:
 	Field(int width, int height)
 	    : m_field(width * height, UNKNOWN), m_width(width), m_height(height)
-	{
-		for (int i = 0, e = width * height; i != e; ++i)
-			m_unknown_cells.insert(i);
-	}
+	{}
 
 	class IntLike
 	{
@@ -239,11 +236,11 @@ public:
 	};
 
 	typedef int const_reference;
-	typedef IntLike reference;
+	typedef int &reference;
 
 	reference operator[](int index)
 	{
-		return IntLike(m_field[index], *this, index);
+		return m_field[index];
 	}
 
 	const_reference operator[](int index) const
@@ -271,22 +268,15 @@ public:
 		return m_height;
 	}
 
-	const std::set<int> &unknown_cells() const
-	{
-		return m_unknown_cells;
-	}
-
 	int set_cell_by_index(int idx, int val)
 	{
 		m_field[idx] = val;
-		m_unknown_cells.erase(idx);
 		return val;
 	}
 
 private:
 	std::vector<int> m_field;
 	int m_width, m_height;
-	std::set<int> m_unknown_cells;
 
 	friend std::ostream &operator<<(std::ostream &os, const Field &fld);
 };
@@ -319,9 +309,9 @@ std::ostream &operator<<(std::ostream &os, const Field &fld)
 	return os;
 }
 
-bool logical_solver(Field &fld, const std::vector<std::vector<int>> &col_blocks,
-                    const std::vector<std::vector<int>> row_blocks,
-                    std::set<int> marked = std::set<int>())
+int logical_solver(Field &fld, const std::vector<std::vector<int>> &col_blocks,
+                   const std::vector<std::vector<int>> row_blocks,
+                   std::set<int> marked = std::set<int>())
 {
 	const int width = fld.width();
 	if (marked.empty())
@@ -331,6 +321,7 @@ bool logical_solver(Field &fld, const std::vector<std::vector<int>> &col_blocks,
 	}
 	int start_search = 0;
 	std::vector<int> pos_changed;
+	int res = 0;
 	while (!marked.empty())
 	{
 		auto it = marked.lower_bound(start_search);
@@ -356,30 +347,32 @@ bool logical_solver(Field &fld, const std::vector<std::vector<int>> &col_blocks,
 					marked.insert(x);
 				else
 					marked.insert(x + width);
+			res += int(pos_changed.size());
 		}
 		else
-			return false;
+			return -1;
 
 		marked.erase(it);
 	}
 
-	return true;
+	return res;
 }
 
 void guessing_solver(Field &fld, const std::vector<std::vector<int>> &col_blocks,
                      const std::vector<std::vector<int>> &row_blocks)
 {
 	logical_solver(fld, col_blocks, row_blocks);
-	while (!fld.unknown_cells().empty())
+
+	Field fld_copies[2] = {fld, fld};
+	while (true)
 	{
 		bool contradiction_found = false;
-		auto tmp                 = fld.unknown_cells();
-		for (auto x : tmp)
+		for (int x = 0, e = fld.width() * fld.height(); x != e; ++x)
 		{
 			if (fld[x] != UNKNOWN) continue;
-			Field fld_copies[2] = {fld, fld};
-			int vals[2]         = {FILLED, EMPTY};
-			bool results[2];
+			int vals[2] = {FILLED, EMPTY};
+			int results[2];
+			fld_copies[0] = fld_copies[1] = fld;
 
 			for (int i = 0; i < 2; ++i)
 			{
@@ -389,7 +382,7 @@ void guessing_solver(Field &fld, const std::vector<std::vector<int>> &col_blocks
 			}
 			for (int i = 0; i < 2; ++i)
 			{
-				if (results[i] && !results[1 - i])
+				if (results[i] != -1 && results[1 - i] == -1)
 				{
 					fld                 = std::move(fld_copies[i]);
 					contradiction_found = true;
