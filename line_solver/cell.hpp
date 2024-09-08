@@ -28,7 +28,7 @@ public:
 	void operator&=(const Cell &a);
 
 private:
-	// Bitmask with possible colors. 0 - "impossible" cell, it mustn't appear in normal puzzles
+	// Bitmask with possible colors. 0 - "impossible" cell, it doesn't appear in normal puzzles
 	// Lowest bit is background (i.e. if m_data == 1 then cell must be background), all other bits
 	// are corresponding colors
 	uint32_t m_data;
