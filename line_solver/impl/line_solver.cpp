@@ -130,7 +130,7 @@ std::vector<size_t> calculate_line(std::vector<Cell> &cells, const std::vector<B
 			}
 			if (j != k && colors_status[blocks[j].color_number - 1] >= blocks[j].block_length)
 			{
-				bool need_gap_after = i + 1 != n && j <= k - 2 &&
+				bool need_gap_after = i + 1 != n && j + 1 < k &&
 				                      blocks[j + 1].color_number == blocks[j].color_number;
 				if (need_gap_after && !cells[i + 1].is_color_possible(0)) continue;
 
