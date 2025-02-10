@@ -56,8 +56,12 @@ const std::vector<BlockData> &PuzzleData::col_clue(int index) const
 	return m_col_clues.at(index);
 }
 
+Color PuzzleData::get_color(int index) const
+{
+	return m_colors.at(index);
+}
 
-int m_rows;
-int m_cols;
-std::vector<std::vector<int>> row_clues;
-std::vector<std::vector<int>> col_clues;
+std::optional<Color> PuzzleData::background_color(int index) const
+{
+	return m_background_color;
+}
