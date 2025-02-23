@@ -1,4 +1,12 @@
 #pragma once
+#include "puzzle_data.hpp"
+#include <exception>
 #include <istream>
 
-void read_puzzle(std::istream &is);
+class PuzzleReadException : public std::exception
+{
+public:
+	PuzzleReadException(const std::string &arg) {}
+};
+
+PuzzleData read_puzzle(std::istream &is);

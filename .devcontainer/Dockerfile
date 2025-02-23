@@ -18,6 +18,8 @@ COPY ./install_ninja.sh /tmp/
 
 RUN chmod +x /tmp/install_ninja.sh && /tmp/install_ninja.sh
 
+RUN apt update && apt install libboost-dev -y
+
 #COPY ./reinstall-cmake.sh /tmp/
 
 # [Optional] Uncomment this section to install additional vcpkg ports.
