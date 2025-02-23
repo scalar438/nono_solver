@@ -1,5 +1,5 @@
 #include "puzzle_data.hpp"
-
+#include <set>
 
 Color::Color(uint_fast8_t r, uint_fast8_t g, uint_fast8_t b) : m_color(r || (g << 8) || (b << 16))
 {}
@@ -20,7 +20,7 @@ uint_fast8_t Color::B() const
 }
 
 PuzzleData::PuzzleData(int r, int c, std::vector<std::vector<BlockData>> row_clues,
-                       std::vector<std::vector<BlockData>> col_clues, std::vector<Color> colors,
+                       std::vector<std::vector<BlockData>> col_clues,
                        std::optional<Color> background_color)
 {
 	if (r != row_clues.size()) throw InvalidPuzzleException();
@@ -32,7 +32,17 @@ PuzzleData::PuzzleData(int r, int c, std::vector<std::vector<BlockData>> row_clu
 	m_row_clues = std::move(row_clues);
 	m_col_clues = std::move(col_clues);
 
-	m_colors           = std::move(colors);
+	std::set<Color> all_colors;
+	for (auto &clues : {row_clues, col_clues})
+	{
+		for (auto &blocks : clues)
+		{
+			for (auto block : blocks)
+				all_colors.insert(block.color());
+		}
+	}
+
+	m_colors           = std::vector(all_colors.begin(), all_colors.end());
 	m_background_color = background_color;
 }
 

@@ -6,11 +6,14 @@
 
 class Color
 {
+public:
 	Color(uint_fast8_t r, uint_fast8_t g, uint_fast8_t b);
 
 	uint_fast8_t R() const;
 	uint_fast8_t G() const;
 	uint_fast8_t B() const;
+
+	std::strong_ordering operator<=>(const Color &) const = default;
 
 private:
 	uint_fast32_t m_color;
@@ -18,6 +21,7 @@ private:
 
 class BlockData
 {
+public:
 	BlockData(uint_fast32_t len, Color col) : m_len(len), m_color(col) {}
 
 	uint_fast32_t len() const
@@ -39,7 +43,7 @@ class PuzzleData
 {
 public:
 	PuzzleData(int r, int c, std::vector<std::vector<BlockData>> row_clues,
-	           std::vector<std::vector<BlockData>> col_clues, std::vector<Color> colors,
+	           std::vector<std::vector<BlockData>> col_clues,
 	           std::optional<Color> background_color);
 
 	int rows() const;
