@@ -87,7 +87,6 @@ PuzzleData read_json(std::istream &is)
 		for (auto line_clue : parse_clues_data(clues_obj, "rows"))
 		{
 			std::vector<BlockData> line_data;
-
 			for (auto block : line_clue)
 			{
 				line_data.push_back(BlockData(block.first, colors[block.second]));
@@ -98,7 +97,6 @@ PuzzleData read_json(std::istream &is)
 
 	return PuzzleData(width, height, std::move(rows), std::move(cols), std::nullopt);
 }
-
 
 } // namespace
 
