@@ -1,4 +1,4 @@
-FROM teeks99/clang-ubuntu:19
+FROM teeks99/clang-ubuntu:21
 
 RUN apt update && apt install curl -y
 

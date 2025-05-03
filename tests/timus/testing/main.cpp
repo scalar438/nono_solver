@@ -59,7 +59,7 @@ string from_vec_cell(const vector<Cell> &vc)
 	return res;
 }
 
-pair<string, string> solve(string str, vector<Block> &blocks)
+pair<string, string> solve(string str, const vector<Block> &blocks)
 {
 	auto cells_exp = parse_string(str);
 	auto cells_sol = cells_exp;
@@ -130,12 +130,12 @@ vector<string> gen_all_rows(int n)
 	return res;
 }
 
-void run_in_one_thread(std::mutex &mtx, vector<pair<vector<Block> *, string *>> &data,
+void run_in_one_thread(std::mutex &mtx, vector<pair<const vector<Block> *, const string *>> &data,
                        optional<OneRunData> &answer_mismatch)
 {
 	while (1)
 	{
-		pair<vector<Block> *, string *> one_run_data;
+		pair<const vector<Block> *, const string *> one_run_data;
 		{
 			std::lock_guard g(mtx);
 			if (data.empty()) break;
@@ -157,7 +157,7 @@ void run_in_one_thread(std::mutex &mtx, vector<pair<vector<Block> *, string *>> 
 	}
 }
 
-void items_counter(std::mutex &mtx, vector<pair<vector<Block> *, string *>> &input_data)
+void items_counter(std::mutex &mtx, vector<pair<const vector<Block> *, const string *>> &input_data)
 {
 	while (1)
 	{
@@ -174,7 +174,7 @@ int main()
 	const int n     = 10;
 	auto all_blocks = gen_all_blocks(n);
 	auto all_rows   = gen_all_rows(n);
-	vector<pair<vector<Block> *, string *>> all_input;
+	vector<pair<const vector<Block> *, const string *>> all_input;
 	for (auto &block : all_blocks)
 	{
 		for (auto &row : all_rows)
