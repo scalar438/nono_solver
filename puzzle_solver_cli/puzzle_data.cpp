@@ -19,18 +19,15 @@ uint_fast8_t Color::B() const
 	return (m_color >> 16) & 255;
 }
 
-PuzzleData::PuzzleData(int r, int c, std::vector<std::vector<BlockData>> row_clues,
+PuzzleData::PuzzleData(int width, int height, std::vector<std::vector<BlockData>> row_clues,
                        std::vector<std::vector<BlockData>> col_clues,
                        std::optional<Color> background_color)
 {
-	if (r != row_clues.size()) throw InvalidPuzzleException();
-	if (c != col_clues.size()) throw InvalidPuzzleException();
+	if (width != col_clues.size()) throw InvalidPuzzleException();
+	if (height != row_clues.size()) throw InvalidPuzzleException();
 
-	m_rows = r;
-	m_cols = c;
-
-	m_row_clues = std::move(row_clues);
-	m_col_clues = std::move(col_clues);
+	m_width  = width;
+	m_height = height;
 
 	std::set<Color> all_colors;
 	for (auto &clues : {row_clues, col_clues})
@@ -44,16 +41,18 @@ PuzzleData::PuzzleData(int r, int c, std::vector<std::vector<BlockData>> row_clu
 
 	m_colors           = std::vector(all_colors.begin(), all_colors.end());
 	m_background_color = background_color;
+	m_row_clues.swap(row_clues);
+	m_col_clues.swap(col_clues);
 }
 
-int PuzzleData::rows() const
+int PuzzleData::height() const
 {
-	return m_rows;
+	return m_height;
 }
 
-int PuzzleData::cols() const
+int PuzzleData::width() const
 {
-	return m_cols;
+	return m_width;
 }
 
 const std::vector<BlockData> &PuzzleData::row_clue(int index) const

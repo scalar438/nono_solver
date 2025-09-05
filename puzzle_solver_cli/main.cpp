@@ -1,3 +1,4 @@
+#include "puzzle_reader.hpp"
 #include <chrono>
 #include <iostream>
 #include <line_solver/line_solver.hpp>
@@ -20,8 +21,19 @@ void set_default()
 	std::cout << "\033[39m";
 }
 
+void clear_screen()
+{
+	std::cout << "\033c";
+}
+
+void reset_cursor()
+{
+	std::cout << "\033[H";
+}
+
 void write_fld(const std::vector<std::vector<Cell>> &fld, const std::pair<bool, int> &marked)
 {
+	reset_cursor();
 	for (int i = 0, ei = int(fld.size()); i != ei; ++i)
 	{
 		if (marked.first && marked.second == i) set_yellow();
@@ -54,39 +66,33 @@ void write_fld(const std::vector<std::vector<Cell>> &fld, const std::pair<bool, 
 		std::cout << std::endl;
 		if (marked.first && marked.second == i) set_default();
 	}
-	std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
 }
 
 int main()
 {
-	int width, height;
-	std::cin >> width >> height;
+	auto puzzle_data = read_puzzle(std::cin);
+
+	int width = puzzle_data.width(), height = puzzle_data.height();
 
 	std::vector<std::vector<Block>> blocks_h(height);
-	for (auto &cur_blocks : blocks_h)
+	for (int i = 0; i < height; ++i)
 	{
-		while (true)
+		auto &cur_blocks = blocks_h[i];
+
+		for (auto clue : puzzle_data.row_clue(i))
 		{
-			int x;
-			std::cin >> x;
-			if (x != 0)
-				cur_blocks.emplace_back(1, x);
-			else
-				break;
+			cur_blocks.emplace_back(1, clue.len());
 		}
 	}
 
 	std::vector<std::vector<Block>> blocks_v(width);
-	for (auto &cur_blocks : blocks_v)
+	for (int i = 0; i < width; ++i)
 	{
-		while (true)
+		auto &cur_blocks = blocks_v[i];
+
+		for (auto clue : puzzle_data.col_clue(i))
 		{
-			int x;
-			std::cin >> x;
-			if (x != 0)
-				cur_blocks.emplace_back(1, x);
-			else
-				break;
+			cur_blocks.emplace_back(1, clue.len());
 		}
 	}
 
@@ -112,6 +118,8 @@ int main()
 	for (int i = 0; i < width; ++i)
 		s.emplace(false, i);
 
+	clear_screen();
+
 	bool cur_d = false;
 	while (!s.empty())
 	{
@@ -127,8 +135,8 @@ int main()
 		}
 		else
 		{
-			// it's possible we have found element but it is from another direction
-			// Just change current direction
+			// it's possible we have found an element but it is from another direction
+			// Just change the current direction
 			if (cur->first != cur_d) cur_d = !cur_d;
 		}
 

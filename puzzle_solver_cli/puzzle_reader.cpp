@@ -1,5 +1,6 @@
 #include "puzzle_reader.hpp"
 #include <boost/json.hpp>
+#include <boost/json/parse_options.hpp>
 #include <boost/json/src.hpp>
 
 namespace
@@ -32,7 +33,11 @@ std::vector<std::vector<std::pair<int, int>>> parse_clues_data(const boost::json
 
 PuzzleData read_json(std::istream &is)
 {
-	auto data = boost::json::parse(is);
+	boost::json::parse_options opts;
+	opts.allow_comments = true;
+	std::error_code ec;
+
+	auto data = boost::json::parse(is, ec, {}, opts);
 
 	auto &obj = data.get_object();
 	auto it   = obj.find("size");

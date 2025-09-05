@@ -42,12 +42,12 @@ private:
 class PuzzleData
 {
 public:
-	PuzzleData(int r, int c, std::vector<std::vector<BlockData>> row_clues,
+	PuzzleData(int width, int height, std::vector<std::vector<BlockData>> row_clues,
 	           std::vector<std::vector<BlockData>> col_clues,
 	           std::optional<Color> background_color);
 
-	int rows() const;
-	int cols() const;
+	int height() const;
+	int width() const;
 
 	const std::vector<BlockData> &row_clue(int index) const;
 	const std::vector<BlockData> &col_clue(int index) const;
@@ -57,8 +57,8 @@ public:
 	std::optional<Color> background_color(int index) const;
 
 private:
-	int m_rows;
-	int m_cols;
+	int m_width;
+	int m_height;
 	std::vector<std::vector<BlockData>> m_row_clues;
 	std::vector<std::vector<BlockData>> m_col_clues;
 
