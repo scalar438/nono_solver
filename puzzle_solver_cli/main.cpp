@@ -6,6 +6,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <termios.h>
 #include <thread>
 #include <vector>
 
@@ -29,6 +30,16 @@ void clear_screen()
 void reset_cursor()
 {
 	std::cout << "\033[H";
+}
+
+void alternate_screen()
+{
+	std::cout << "\033[?47h";
+}
+
+void restore_screen()
+{
+	std::cout << "\033[?47l";
 }
 
 void write_fld(const std::vector<std::vector<Cell>> &fld, const std::pair<bool, int> &marked)
@@ -118,6 +129,7 @@ int main()
 	for (int i = 0; i < width; ++i)
 		s.emplace(false, i);
 
+	alternate_screen();
 	clear_screen();
 
 	bool cur_d = false;
@@ -173,4 +185,5 @@ int main()
 
 		std::this_thread::sleep_for(2000ms);
 	}
+	restore_screen();
 }
