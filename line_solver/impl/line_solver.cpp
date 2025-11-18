@@ -54,8 +54,10 @@ private:
 		{
 			const size_t block_len = blocks[ib].block_length;
 			const int block_color  = blocks[ib].color_number;
+			const bool need_gap = ib != 0 && blocks[ib - 1].color_number == blocks[ib].color_number;
+			size_t cur_matched  = 0;
+
 			std::vector<bool> end_allow_list{false};
-			size_t cur_matched = 0;
 			for (size_t i = 0; i != data.size(); ++i)
 			{
 				if (!data[i].is_color_possible(block_color))
@@ -66,10 +68,8 @@ private:
 					if (cur_matched < block_len) return false;
 
 					size_t start_current_block = i - block_len + 1;
-					bool need_gap =
-					    ib != 0 && blocks[ib - 1].color_number == blocks[ib].color_number;
 					if (need_gap) --start_current_block;
-					// start_current block is unsigned, so we can't use (start_current_block < 0) here
+					// start_current block is unsigned, so decreasing it don't make it negative
 					if (start_current_block > n) return false;
 					return (!need_gap || data[start_current_block].is_color_possible(0)) &&
 					       res.back()[start_current_block];
@@ -130,8 +130,8 @@ std::vector<size_t> calculate_line(std::vector<Cell> &cells, const std::vector<B
 			}
 			if (j != k && colors_status[blocks[j].color_number - 1] >= blocks[j].block_length)
 			{
-				bool need_gap_after = i + 1 != n && j + 1 < k &&
-				                      blocks[j + 1].color_number == blocks[j].color_number;
+				bool need_gap_after =
+				    i + 1 != n && j + 1 < k && blocks[j + 1].color_number == blocks[j].color_number;
 				if (need_gap_after && !cells[i + 1].is_color_possible(0)) continue;
 
 				bool need_gap_before = i - blocks[j].block_length < n && j != 0 &&
