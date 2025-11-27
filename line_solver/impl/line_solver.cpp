@@ -58,12 +58,19 @@ private:
 			size_t cur_matched  = 0;
 
 			std::vector<bool> end_allow_list{false};
+			end_allow_list.reserve(n);
+			bool simple_pass = false;
 			for (size_t i = 0; i != data.size(); ++i)
 			{
 				if (!data[i].is_color_possible(block_color))
 					cur_matched = 0;
 				else
 					++cur_matched;
+				if (simple_pass && data[i].is_color_possible(0))
+				{
+					end_allow_list.push_back(true);
+					continue;
+				}
 				auto calc_current_flag = [&]() {
 					if (cur_matched < block_len) return false;
 
@@ -74,15 +81,7 @@ private:
 					return (!need_gap || data[start_current_block].is_color_possible(0)) &&
 					       res.back()[start_current_block];
 				};
-				end_allow_list.push_back(calc_current_flag());
-			}
-
-			for (size_t i = 0; i < n; ++i)
-			{
-				if (end_allow_list[i] && !end_allow_list[i + 1] && data[i].is_color_possible(0))
-				{
-					end_allow_list[i + 1] = true;
-				}
+				end_allow_list.push_back(simple_pass = calc_current_flag());
 			}
 
 			res.push_back(std::move(end_allow_list));
