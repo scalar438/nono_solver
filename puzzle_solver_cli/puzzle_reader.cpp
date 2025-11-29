@@ -13,12 +13,12 @@ std::vector<std::vector<std::pair<int, int>>> parse_clues_data(const boost::json
 {
 	auto it = obj.find(clues_name);
 	if (it == obj.end())
-		throw PuzzleReadException(std::string("There is not clues data '") + clues_name + "'");
+		throw PuzzleReadException(std::string("There is no clues data '") + clues_name + "'");
 	if (!it->value().is_array()) throw PuzzleReadException("The clues data isn't an array");
 	std::vector<std::vector<std::pair<int, int>>> res;
 	for (auto &line_clues_raw : it->value().as_array())
 	{
-		if (!line_clues_raw.is_array()) throw PuzzleReadException("The clues data isnt' an array");
+		if (!line_clues_raw.is_array()) throw PuzzleReadException("The clues data isn't an array");
 
 		// Currently, only single-color puzzles are supported.
 		std::vector<std::pair<int, int>> line_clues;
