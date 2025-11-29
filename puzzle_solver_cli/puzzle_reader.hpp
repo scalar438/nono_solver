@@ -1,5 +1,5 @@
 #pragma once
-#include "puzzle_data.hpp"
+#include <puzzle_solver/puzzle_data.hpp>
 #include <exception>
 #include <istream>
 

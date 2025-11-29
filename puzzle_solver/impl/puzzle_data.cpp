@@ -1,4 +1,4 @@
-#include "puzzle_data.hpp"
+#include "puzzle_solver/puzzle_data.hpp"
 #include <set>
 
 Color::Color(uint_fast8_t r, uint_fast8_t g, uint_fast8_t b) : m_color(r || (g << 8) || (b << 16))
