@@ -1,7 +1,7 @@
 #pragma once
-#include <puzzle_solver/puzzle_data.hpp>
 #include <exception>
 #include <istream>
+#include <puzzle_solver/puzzle_data.hpp>
 
 class PuzzleReadException : public std::exception
 {

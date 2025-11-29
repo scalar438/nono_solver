@@ -27,21 +27,21 @@ public:
 	}
 
 private:
-	std::vector<std::vector<bool>> m_prefix_placeability;
+	std::vector<std::vector<unsigned char>> m_prefix_placeability;
 
-	std::vector<std::vector<bool>> m_suffix_placeability;
+	std::vector<std::vector<unsigned char>> m_suffix_placeability;
 
 	template <class TData, class TBlock>
-	static std::vector<std::vector<bool>> fill_positions(const TData &data, const TBlock &blocks)
+	static std::vector<std::vector<unsigned char>> fill_positions(const TData &data, const TBlock &blocks)
 	{
-		std::vector<std::vector<bool>> res;
+		std::vector<std::vector<unsigned char>> res;
 
 		const size_t n = data.size();
 		{
 			size_t first_non_empty = 0;
 			while (first_non_empty != n && data[first_non_empty].is_color_possible(0))
 				++first_non_empty;
-			std::vector<bool> first_row;
+			std::vector<unsigned char> first_row;
 			first_row.reserve(n + 1);
 			while (first_row.size() <= first_non_empty)
 				first_row.push_back(true);
@@ -57,7 +57,7 @@ private:
 			const bool need_gap = ib != 0 && blocks[ib - 1].color_number == blocks[ib].color_number;
 			size_t cur_matched  = 0;
 
-			std::vector<bool> end_allow_list{false};
+			std::vector<unsigned char> end_allow_list{false};
 			end_allow_list.reserve(n);
 			bool simple_pass = false;
 			for (size_t i = 0; i != data.size(); ++i)
