@@ -1,6 +1,6 @@
-FROM teeks99/clang-ubuntu:21
+FROM teeks99/clang-ubuntu:23
 
-RUN apt update && apt install curl -y
+RUN apt update && apt install curl clang-format -y
 
 ARG REINSTALL_CMAKE_VERSION_FROM_SOURCE="3.30.3"
 
