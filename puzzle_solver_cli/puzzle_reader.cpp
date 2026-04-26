@@ -31,7 +31,7 @@ std::vector<std::vector<std::pair<int, int>>> parse_clues_data(const boost::json
 	return res;
 }
 
-PuzzleData read_json(std::istream &is)
+nono::PuzzleData read_json(std::istream &is)
 {
 	boost::json::parse_options opts;
 	opts.allow_comments = true;
@@ -72,40 +72,40 @@ PuzzleData read_json(std::istream &is)
 	if (it == obj.end()) throw PuzzleReadException("There is no clues");
 
 	// Only a single-color puzzle is supported
-	Color colors[1] = {Color(0, 0, 0)};
+	nono::Color colors[1] = {nono::Color(0, 0, 0)};
 
-	std::vector<std::vector<BlockData>> cols, rows;
+	std::vector<std::vector<nono::BlockData>> cols, rows;
 	{
 		if (!it->value().is_object()) throw PuzzleReadException("The 'clues' data isn't an object");
 		auto &clues_obj = it->value().as_object();
 
 		for (auto &line_clue : parse_clues_data(clues_obj, "cols"))
 		{
-			std::vector<BlockData> line_data;
+			std::vector<nono::BlockData> line_data;
 			for (auto block : line_clue)
 			{
-				line_data.push_back(BlockData(block.first, colors[block.second]));
+				line_data.push_back(nono::BlockData(block.first, colors[block.second]));
 			}
 			cols.emplace_back(std::move(line_data));
 		}
 
 		for (auto line_clue : parse_clues_data(clues_obj, "rows"))
 		{
-			std::vector<BlockData> line_data;
+			std::vector<nono::BlockData> line_data;
 			for (auto block : line_clue)
 			{
-				line_data.push_back(BlockData(block.first, colors[block.second]));
+				line_data.push_back(nono::BlockData(block.first, colors[block.second]));
 			}
 			rows.emplace_back(std::move(line_data));
 		}
 	}
 
-	return PuzzleData(width, height, std::move(rows), std::move(cols), std::nullopt);
+	return nono::PuzzleData(width, height, std::move(rows), std::move(cols), std::nullopt);
 }
 
 } // namespace
 
-PuzzleData read_puzzle(std::istream &is)
+nono::PuzzleData read_puzzle(std::istream &is)
 {
 	return read_json(is);
 }

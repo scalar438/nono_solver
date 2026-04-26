@@ -4,6 +4,9 @@
 #include <optional>
 #include <vector>
 
+namespace nono
+{
+
 class Color
 {
 public:
@@ -71,3 +74,5 @@ class InvalidPuzzleException : public std::exception
 public:
 	InvalidPuzzleException() {}
 };
+
+} // namespace nono

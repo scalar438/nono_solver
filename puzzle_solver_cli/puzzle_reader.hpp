@@ -9,4 +9,4 @@ public:
 	PuzzleReadException(const std::string &arg) {}
 };
 
-PuzzleData read_puzzle(std::istream &is);
+nono::PuzzleData read_puzzle(std::istream &is);
