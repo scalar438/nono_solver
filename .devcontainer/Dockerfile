@@ -1,26 +1,51 @@
-FROM teeks99/clang-ubuntu:23
+#-------------------------------------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
+#-------------------------------------------------------------------------------------------------------------
 
-RUN apt update && apt install curl clang-format -y
+FROM rust:1.98
 
-ARG REINSTALL_CMAKE_VERSION_FROM_SOURCE="3.30.3"
+# This Dockerfile adds a non-root user with sudo access. Use the "remoteUser"
+# property in devcontainer.json to use it. On Linux, the container user's GID/UIDs
+# will be updated to match your local UID/GID (when using the dockerFile property).
+# See https://aka.ms/vscode-remote/containers/non-root-user for details.
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 
-# Optionally install the cmake for vcpkg
-COPY ./reinstall-cmake.sh /tmp/
+# Avoid warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN if [ "${REINSTALL_CMAKE_VERSION_FROM_SOURCE}" != "none" ]; then \
-        chmod +x /tmp/reinstall-cmake.sh && /tmp/reinstall-cmake.sh ${REINSTALL_CMAKE_VERSION_FROM_SOURCE}; \
-    fi \
-    && rm -f /tmp/reinstall-cmake.sh
+# Configure apt and install packages
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
+    #
+    # Verify git, needed tools installed
+    && apt-get -y install git iproute2 procps lsb-release libxkbcommon-dev libxkbcommon-x11-dev \
+    #
+    # Install lldb, vadimcn.vscode-lldb VSCode extension dependencies
+    && apt-get install -y lldb python3-minimal libpython3.7 \
+    #
+    # Install Rust components
+    && rustup update 2>&1 \
+    && rustup component add rust-analysis rust-src rustfmt clippy 2>&1 \
+    #
+    # Create a non-root user to use if preferred - see https://aka.ms/vscode-remote/containers/non-root-user.
+    && groupadd --gid $USER_GID $USERNAME \
+    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    # [Optional] Add sudo support for the non-root user
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME\
+    && chmod 0440 /etc/sudoers.d/$USERNAME \
+    #
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt install unzip 
+# Set UMASK for group-writable permissions on created files
+# This ensures files created in the container are writable by the host user
+RUN echo 'umask 0002' >> /etc/profile.d/umask.sh
 
-COPY ./install_ninja.sh /tmp/
-
-RUN chmod +x /tmp/install_ninja.sh && /tmp/install_ninja.sh
-
-RUN apt update && apt install libboost-dev -y
-
-#COPY ./reinstall-cmake.sh /tmp/
-
-# [Optional] Uncomment this section to install additional vcpkg ports.
-# RUN su vscode -c "${VCPKG_ROOT}/vcpkg install <your-port-name-here>"
+# Switch back to dialog for any ad-hoc use of apt-get
+ENV DEBIAN_FRONTEND=dialog

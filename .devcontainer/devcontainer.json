@@ -1,33 +1,36 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/cpp
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.44.0/containers/rust
 {
-	"name": "C++",
-	"build": {
-		"dockerfile": "Dockerfile"
+	"name": "Rust",
+	"dockerFile": "Dockerfile",
+	"runArgs": [
+		"--cap-add=SYS_PTRACE",
+		"--security-opt",
+		"seccomp=unconfined"
+	],
+	// Use 'appPort' to create a container with published ports. If the port isn't working, be sure
+	// your server accepts connections from all interfaces (0.0.0.0 or '*'), not just localhost.
+	// "appPort": [],
+	// Uncomment the next line to run commands after the container is created.
+	// "postCreateCommand": "rustc --version",
+	// Connect as a non-root user with UID/GID synchronized to match local user
+	// Files created in container will be owned by this user, making them writable on the host
+	"remoteUser": "vscode",
+	"remoteEnv": {
+		"UMASK": "0002"
 	},
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "gcc -v",
-
-	// Configure tool-specific properties.
-
+	// Add the IDs of extensions you want installed when the container is created in the array below.
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ms-vscode.cpptools-extension-pack",
-				"vadimcn.vscode-lldb"
-			]
+				"tamasfe.even-better-toml",
+				"vadimcn.vscode-lldb",
+				"rust-lang.rust-analyzer"
+			],
+			"settings": {
+				"terminal.integrated.shell.linux": "/bin/bash",
+				"lldb.executable": "/usr/bin/lldb"
+			}
 		}
 	}
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
 }
-
-
