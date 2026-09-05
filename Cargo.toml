@@ -1,5 +1,3 @@
-
-
 [workspace]
 resolver = "3"
-members = ["line_solver"]
+members = ["line_solver", "tests/line_solver_testing"]

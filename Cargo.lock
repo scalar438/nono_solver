@@ -3,5 +3,12 @@
 version = 4
 
 [[package]]
-name = "line_sol"
-version = "0.1.0"
+name = "line_solver"
+version = "0.0.0"
+
+[[package]]
+name = "line_solver_testing"
+version = "0.0.0"
+dependencies = [
+ "line_solver",
+]

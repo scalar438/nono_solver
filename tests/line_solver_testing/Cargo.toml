@@ -1,0 +1,6 @@
+[package]
+name = "line_solver_testing"
+edition = "2024"
+
+[dependencies]
+line_solver = { path = "../../line_solver" }
